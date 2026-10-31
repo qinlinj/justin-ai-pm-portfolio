@@ -15,8 +15,8 @@ header{max-width:1280px;padding-left:64px;padding-right:64px}
 .work-index>a span{font-size:10px}
 .work-index>p{font-size:11px}
 .study-action{font:10px/1.5 monospace;color:var(--green);white-space:nowrap}
-.study-action:after{content:'Read study'}
-details[open] .study-action:after{content:'Close study'}
+.study-action:after{content:none}
+details[open] .study-action:after{content:none}
 summary:hover .study-title h4{color:var(--green)}
 summary:hover .toggle{border-color:var(--green)}
 .flow{flex-wrap:nowrap}
