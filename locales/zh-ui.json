@@ -23,7 +23,20 @@
     "Completed work / architecture notes": "已完成工作 / 架构笔记",
     "The notes retain architecture analysis and evaluation plans; individual design components and intended benefits are not claims of deployed implementation or measured results.": "以下为相关架构分析与评估计划，不表示所有模块均已上线，也不代表实测收益。",
     "Close background & reflections ↑": "收起经历与思考 ↑",
-    "Open background & reflections ↗": "展开经历与思考 ↗"
+    "Open background & reflections ↗": "展开经历与思考 ↗",
+    "Design study · not implemented": "设计研究 · 尚未实现",
+    "Proposed support paths": "客服处理路径 · 设计方案",
+    "Read-only questions": "资料问答",
+    "Check document access": "校验资料访问权限",
+    "Retrieve evidence": "检索资料与业务规则",
+    "Refunds and order changes": "退款与订单修改",
+    "Validate permissions and parameters": "校验业务权限与操作参数",
+    "Obtain required human approval": "按规则确认；不可逆操作由负责人审批",
+    "Shared state: request, evidence, approval, execution result, and handoff context.": "共享状态：请求、依据、审批、执行结果与转人工上下文。",
+    "These paths describe the proposed architecture, not a verified inventory of deployed components.": "以上为架构设计，不表示每个模块均已部署。",
+    "Answer with sources or hand off": "附来源作答／证据不足时转人工",
+    "Execute once, record, or hand off on failure": "幂等执行并留档／失败转人工",
+    "Architecture analysis · see scope note": "架构分析 · 实现范围见说明"
   },
   "description": "Justin Jia 的 AI 系统设计案例：RAG、Agent、多模态与推理，讲清架构怎么选、效果怎么评。",
   "languageName": "中文"

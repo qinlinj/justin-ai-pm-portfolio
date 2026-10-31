@@ -1,7 +1,9 @@
 (() => {
   const header = document.querySelector('header');
   const links = [...document.querySelectorAll('.work-index a')];
-  const sections = links.map(a => document.getElementById(a.hash.slice(1)));
+  const sections = links.map(a => document.getElementById(a.hash.slice(1))).filter(Boolean);
+  const mainLinks = [...document.querySelectorAll('#main-nav a')];
+  const mainSections = mainLinks.map(a => document.getElementById(a.hash.slice(1))).filter(Boolean);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let selectedTarget = null;
   let expiry = 0;
@@ -17,10 +19,15 @@
   });
   const sync = () => {
     frame = 0;
+    const line = offset() + 2;
+    const mainCurrent = [...mainSections].reverse().find(section => section.getBoundingClientRect().top <= line);
+    mainLinks.forEach(a => {
+      if (mainCurrent && a.hash === '#' + mainCurrent.id) a.setAttribute('aria-current', 'location');
+      else a.removeAttribute('aria-current');
+    });
     if (selectedTarget && performance.now() < expiry) { mark(selectedTarget); return; }
     selectedTarget = null;
     // One ordered position model for both scrolling and clicked anchors.
-    const line = offset() + 2;
     let current = sections[0];
     for (const section of sections) {
       if (section.getBoundingClientRect().top <= line) current = section;
@@ -32,7 +39,7 @@
   const navigate = (id, smooth = true) => {
     dispatchEvent(new Event('settle-disclosures'));
     const target = document.getElementById(id);
-    if (!target) return;
+    if (!target) { if (!id) window.scrollTo({ top: 0, behavior: 'instant' }); return; }
     // Open direct study links before measuring the destination.
     if (target.matches('.study-group details, .allocated-study')) target.open = true;
     // Stop an earlier animation before measuring a new destination.
@@ -45,6 +52,7 @@
     clearTimeout(idle);
     idle = setTimeout(() => { selectedTarget = null; queue(); }, 1900);
   };
+  document.querySelectorAll('a[aria-disabled="true"]').forEach(a => a.addEventListener('click', event => event.preventDefault()));
   document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', event => {
     if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const id = a.hash.slice(1);
@@ -65,7 +73,7 @@
   addEventListener('keydown', e => { if (['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(e.key)) { userInteracted = true; selectedTarget = null; } });
   addEventListener('popstate', () => { navigate(location.hash.slice(1), false); queue(); });
   addEventListener('resize', queue, { passive: true });
-  new ResizeObserver(queue).observe(document.querySelector('#studies'));
+  new ResizeObserver(queue).observe(document.querySelector('main'));
   document.addEventListener('click', () => { userInteracted = true; }, { once: true });
   // Deep links are aligned after dynamic studies and fonts have their final size.
   requestAnimationFrame(() => { if (location.hash) navigate(location.hash.slice(1), false); else sync(); });
