@@ -69,3 +69,7 @@ Baseline: GitHub main `002e88b47dc43e09b56729d43106073f915295c7` (PR #1).
 - No new personal ownership, acceptance results, deployment scale, client counts, or delivered modules were inferred. More detailed contribution and acceptance evidence still requires owner-supplied facts.
 
 The previous seven-criterion editorial assessment is not a recruiting usability study. This follow-up verifies the scoped changes above; no independent timed reader test has been performed.
+
+## Subsequent owner confirmation
+
+The owner subsequently confirmed the candidate contribution, functionality, and acceptance activities as actual experience. See [the confirmed experience update and next-iteration review](hiring-review-next-iteration.md) for the resulting bilingual changes, current acceptance status, and remaining recruiting evidence gaps. The earlier statement that these details still require confirmation is historical and no longer applies to the newly confirmed content.
