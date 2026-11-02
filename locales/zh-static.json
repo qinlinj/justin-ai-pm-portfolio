@@ -96,5 +96,15 @@
   "Experience, education & research interests": "工作经历、教育背景与研究方向",
   "to AI products": "让 Agent",
   "that work.": "解决实际问题。",
-  "Projects": "独立项目"
+  "Projects": "独立项目",
+  "Experience & education": "工作经历与教育背景",
+  "Research interests": "研究方向",
+  "Agent memory, task autonomy, and reusable knowledge: three directions for longer-term product value.": "围绕记忆管理、自主执行与知识复用，研究 Agent 如何在长期使用中持续创造价值。",
+  "Research directions": "研究重点",
+  "Memory, autonomy & knowledge": "记忆管理、自主执行与知识复用",
+  "NEXT / AGENT PROJECTS": "下一步 / Agent 项目规划",
+  "Five proposals for what comes next.": "接下来的五个项目提案",
+  "Five agent project proposals I may develop next.": "围绕 AI Agent 的五个项目提案，作为后续开发与研究的方向。",
+  "Future agent projects: scope, architecture, and evaluation.": "未来 Agent 项目的范围、架构与评估规划。",
+  "Future projects": "未来项目"
 }

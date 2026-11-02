@@ -15,6 +15,7 @@ class Page(HTMLParser):
         self.ids = set()
         self.references = []
         self.language = None
+        self.disclosures = {}
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == 'html':
@@ -22,6 +23,8 @@ class Page(HTMLParser):
         if 'id' in attrs:
             assert attrs['id'] not in self.ids, f'Duplicate ID in {self.path}: {attrs["id"]}'
             self.ids.add(attrs['id'])
+        if tag == 'details' and attrs.get('id'):
+            self.disclosures[attrs['id']] = 'open' in attrs
         for key in ('src', 'href'):
             if attrs.get(key):
                 self.references.append(attrs[key])
@@ -39,6 +42,8 @@ for name, language in [('index.html', 'en'), ('zh.html', 'zh-CN')]:
         assert target.is_relative_to(ROOT / 'dist'), f'Asset outside dist: {reference}'
         assert target.exists(), f'Missing asset: {reference}'
     assert 'Justin Jia' in path.read_text(), f'Missing owner name: {name}'
+    for identifier in ('gtsp-details', 'remex-details', 'profile-background', 'profile-research'):
+        assert page.disclosures.get(identifier) is False, f'Detail should start closed: {name} {identifier}'
 
 for path in (ROOT / 'dist').glob('*.js'):
     subprocess.run(['node', '--check', str(path)], check=True)
