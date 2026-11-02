@@ -2,54 +2,57 @@
 
 ## Reading hierarchy
 
-The first screen establishes positioning and links to delivered work. Experience cards expose employer, role, dates, and a short outcome summary; GTSP and Remex detail containers start closed. Their acceptance material and architecture notes remain available inside. A direct case URL opens all enclosing disclosures before aligning the case beneath the sticky header.
+The hero states full-stack engineering and agent delivery, supported by one concrete sentence about commerce, data platforms, support, and travel planning. The main navigation provides section access; no separate hero action repeats those destinations.
 
-The five future proposals are planning/research material. Use the future-project label and concise introduction rather than repeatedly contrasting them with production work. Keep their architecture depth and evaluation plans. Existing experience and proposed extensions retain their factual scope.
+Profile introduces background and ongoing questions. Perspective connects each judgment to a case. Experience presents delivered responsibilities and outcomes; independent projects retain their own dates and proposed extensions. Five future project proposals share a direction overview and an expandable validation sequence, followed by the existing architecture depth. The contact section remains visible; unpublished destinations remain disabled `about:blank` links.
 
-## Type and emphasis
+GTSP starts closed. On expansion, payments, authentication, migration, and their exact metrics come first. The support integration is a nested disclosure. Remex starts closed and presents delivered and in-development projects before the approval method and service examples. Keep all nine architecture notes and distinguish proposed extensions from delivered functionality.
 
-| Role | Typeface | Size | Weight and treatment |
+## Type, color, and emphasis
+
+| Role | Typeface | Size | Treatment |
 | --- | --- | --- | --- |
-| H1/H2 | Space Grotesk in English; native Chinese sans-serif in Chinese | Responsive H1; 26–42px H2 | 600; primary ink, with one green hero line |
-| Body | DM Sans, PingFang SC, Microsoft YaHei, sans-serif | 16px; hero 17px desktop | 400; 1.85 line height |
-| Card heading | Body family | 18–20px | 600; primary ink |
-| Control/diagram label | Body family | 14–16px | 500–600; consistent across diagrams |
-| Metadata | Body family | 12–13px | 400–500; muted green-gray |
-| Step number | Body family, tabular figures | 12px | 600; same size/weight across numbered components |
-| Key phrase | Body family | Inherits paragraph size | 600, `#2e603f`; short phrases only |
+| Hero | Local system sans-serif | English 32–60px; Chinese 30–48px | 650; black first line, dark green second line |
+| Section heading | Local system sans-serif | 30–42px | 600; primary ink |
+| Card heading | Local system sans-serif | 18–28px | 600; primary ink |
+| Body | Local system sans-serif | 16px; hero 18px desktop | 400; English 1.7 line height, Chinese 1.85 |
+| Control / diagram | Local system sans-serif | 14–16px | 500–600 |
+| Metadata | Local system sans-serif | 12–13px | 400–500; muted neutral |
+| Number | Local system sans-serif, tabular figures | 12px | 600; green |
+| Key phrase | Body font | Inherited | 600; dark green, short phrases only |
 
-Use primary ink `#25392c`, body `#42543f`, and supporting text `#5d6b58`. Use green emphasis for specific responsibilities, boundaries, and results, never full paragraphs. Preserve metric meaning. Underlines identify text links; do not use underlines for headings or emphasis. Buttons and disclosure rows use their surfaces and icons to communicate interaction.
+Use primary ink `#19211f`, body `#3e4844`, and supporting text `#626d66`. Green `#285b44` identifies accents and interaction states. Body text uses neutral tones rather than green throughout. Use underlines for text links, not headings or arbitrary emphasis. Preserve metric wording and numerical meaning.
 
-## Surfaces, symmetry, and icons
+`polish.css` is the final presentation layer after the retained stylesheets. No remote font request is required. English tracking is restrained and text width is bounded. Avoid text blur or opacity-based scroll reveals.
 
-- Cream background, restrained green, rounded glass cards. Main cards use a 26px radius; nested panels use 18px.
-- Center the primary action within the hero text column. Its SVG icon is decorative; the link text remains its accessible name.
-- Give all three hero steps equal surfaces and equal numerical markers. Color does not imply that the third step is selected.
-- Use the same chevron for every disclosure. It points down when closed and up when open. The whole summary is clickable; language/menu controls have at least 44px touch targets.
-- A straight SVG arrow represents a real process connection. Four-node diagrams reserve explicit 24px tracks between equal-width nodes, with arrows centered horizontally and vertically. On mobile these tracks become vertical.
-- The six-step design framework uses numbered cards without arrows. Numbers already establish reading order.
+## Surfaces and connectors
 
-## Profile behavior
+- Warm cream base with localized sage gradients; white cards and green process surfaces create depth.
+- Glass treatment is concentrated on navigation and the hero diagram. Reading areas use more opaque surfaces and no nested backdrop blur.
+- All three hero steps use equal numerical markers and surfaces. Their SVG arrows are absolutely centered in the connector tracks.
+- Four-node process diagrams reserve 24px tracks between equal-width nodes. Mobile diagrams stack vertically.
+- The six-step framework uses numbered cards without arrows.
+- Disclosure chevrons point down when closed and up when open. The entire summary is interactive; navigation and language controls are at least 44px.
 
-Desktop background and research cards share grid tracks, aligning intros, summary bars, and open outer bounds without fixed content heights. Each uses the same heading/body/control styling.
+## Profile interaction
 
-The background control opens or closes both panels, preserving the established linked interaction. Research has its own independent control. Mobile stacks the cards in reading order; below 380px decorative profile marks are hidden to leave room for labels. This behavior supersedes the earlier requirement that every research toggle also follow background state.
+Both controls toggle the background and research panels together. Research uses a simple keyword row rather than a second avatar or search-icon card. Desktop panels share grid tracks for aligned summaries and open bounds. On mobile, cards stack, and animated scroll compensation keeps the clicked control in place when the preceding card expands or collapses. User scrolling or keyboard input cancels compensation.
 
-## Motion and language navigation
+All disclosures start closed on fresh loads, including incoming fragment URLs. A tiny head script defers browser fragment handling to prevent automatic disclosure opening. Initial alignment lands at the enclosing career card when a target is hidden. A deliberate in-page case link opens the required ancestors and aligns the selected case below the sticky header.
 
-- Disclosures animate height for 280ms. Reduced-motion preferences bypass animation.
-- Language switching fades out for 120ms and fades in for 180ms. It retains expanded panel IDs and a section-relative reading position using temporary URL parameters, then removes those parameters from the destination address. No personal information or persistent storage is involved.
-- A directly selected open case remains the selected case after switching language. Ordinary links still work without JavaScript or with modifier-click; state restoration and animation are enhancements.
-- The navigation controller waits for initial layout/font readiness and opens all enclosing disclosures before measuring a deep link. Keyboard anchor activation moves focus to the destination.
+## Language switching and motion
 
-## Verification checklist
+Language links remain ordinary real URLs. A native cross-document view transition holds the previous frame until the next page is ready, keeping the header visually stable. Supporting browsers cross-fade for 260ms; reduced-motion preferences disable the transition. Other browsers navigate immediately with a subtle arrival fade, without the previous fade-out delay. Target documents are prefetched on pointer hover or keyboard focus.
 
-- Fresh English and Chinese loads: profile/research and GTSP/Remex detail containers are closed.
-- Background toggles both profile cards; research toggles independently; `aria-expanded` agrees with rendered state.
-- Deep-linked studies open their enclosing experience card and land approximately 24px below navigation.
-- Language switching preserves nested open panels and returns to a clean URL; reduced-motion source paths bypass fades.
-- Desktop profile summaries and open outer bounds align; process arrows sit at the midpoint between adjacent boxes.
-- Mobile EN/Chinese at 320/390px: readable labels, 44px navigation targets, no document overflow.
-- Locale generation and repository checks pass; CSS assets resolve and all nine architecture notes remain.
+Temporary URL parameters carry only expanded disclosure IDs and section-relative reading position; they are removed on arrival. No personal or persistent storage is involved. Changing language preserves user-opened panels, while a later fresh load resets them. All local JS/CSS URLs use generated content hashes so an updated page cannot silently reuse stale behavior or styles.
 
-Browser checks cover responsive embedded viewports, not physical phones or mainland networks. OS-level reduced-motion emulation and cross-browser transition timing remain unverified. Publication must still be verified separately against the latest reviewed GitHub main.
+## Verification
+
+- English and Chinese desktop and 320/390px browser viewports: no document overflow.
+- Both profile controls synchronize state; desktop bounds align. Mobile research-control movement measured below 1px after expansion and collapse.
+- Fresh support fragment loads remain closed; deliberate support links open GTSP, agent, and study details.
+- Language change retains the nested support case and clean URL at approximately 24px below navigation.
+- Contact entry is visible; destinations remain disabled as specified.
+- Locale generation, generated asset hashes, JS syntax, local asset references, nine-note coverage, and supplied metrics are checked by repository scripts.
+
+Physical phones, a second browser engine, and OS-level reduced-motion settings are not covered by this browser session. Native view-transition support varies; the immediate-navigation fallback remains available. Publication must be verified separately against reviewed GitHub main.

@@ -1,5 +1,6 @@
 (() => {
   history.scrollRestoration = 'manual';
+  const initialHash = window.portfolioInitialHash || location.hash;
   const header = document.querySelector('header');
   const links = [...document.querySelectorAll('.work-index a')];
   const sections = links.map(a => document.getElementById(a.hash.slice(1))).filter(Boolean);
@@ -37,16 +38,20 @@
     if (current) mark(current.id);
   };
   const queue = () => { if (!frame) frame = requestAnimationFrame(sync); };
-  const navigate = (id, smooth = true) => {
+  const navigate = (id, smooth = true, expand = true) => {
     dispatchEvent(new Event('settle-disclosures'));
-    const target = document.getElementById(id);
+    let target = document.getElementById(id);
     if (!target) { if (!id) window.scrollTo({ top: 0, behavior: 'instant' }); return; }
     // Nested case links open every enclosing disclosure before measuring the target.
     const ancestors = [];
     for (let node = target; node; node = node.parentElement) {
       if (node.matches('details')) ancestors.push(node);
     }
-    ancestors.reverse().forEach(details => { details.open = true; });
+    if (expand) ancestors.reverse().forEach(details => { details.open = true; });
+    else {
+      const closedParent = ancestors.filter(details => !details.open).at(-1);
+      if (closedParent) target = closedParent.closest('.career-card, .project-card') || closedParent;
+    }
     // Stop an earlier animation before measuring a new destination.
     window.scrollTo({ top: window.scrollY, behavior: 'instant' });
     const restored = window.portfolioLanguagePosition;
@@ -88,7 +93,15 @@
   new ResizeObserver(queue).observe(document.querySelector('main'));
   document.addEventListener('click', () => { userInteracted = true; }, { once: true });
   // Deep links are aligned after dynamic studies and fonts have their final size.
-  requestAnimationFrame(() => { if (location.hash) navigate(location.hash.slice(1), false); else sync(); });
-  addEventListener('load', () => requestAnimationFrame(() => { if (!userInteracted && location.hash) navigate(location.hash.slice(1), false); }));
-  document.fonts?.ready.then(() => { if (!userInteracted && location.hash) navigate(location.hash.slice(1), false); });
+  const alignInitial = () => { if (!userInteracted && initialHash) navigate(initialHash.slice(1), false, false); else sync(); };
+  alignInitial();
+  requestAnimationFrame(alignInitial);
+  addEventListener('load', () => requestAnimationFrame(() => {
+    if (!userInteracted && initialHash) {
+      history.replaceState(null, '', location.pathname + location.search + initialHash);
+      dispatchEvent(new Event('hashchange'));
+    }
+    alignInitial();
+  }));
+  document.fonts?.ready.then(alignInitial);
 })();

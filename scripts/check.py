@@ -3,6 +3,7 @@ from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit
 import json
+import hashlib
 import re
 import subprocess
 
@@ -16,6 +17,7 @@ class Page(HTMLParser):
         self.references = []
         self.language = None
         self.disclosures = {}
+        self.open_disclosures = 0
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == 'html':
@@ -25,6 +27,8 @@ class Page(HTMLParser):
             self.ids.add(attrs['id'])
         if tag == 'details' and attrs.get('id'):
             self.disclosures[attrs['id']] = 'open' in attrs
+        if tag == 'details' and 'open' in attrs:
+            self.open_disclosures += 1
         for key in ('src', 'href'):
             if attrs.get(key):
                 self.references.append(attrs[key])
@@ -34,6 +38,7 @@ for name, language in [('index.html', 'en'), ('zh.html', 'zh-CN')]:
     page = Page(path)
     page.feed(path.read_text())
     assert page.language == language, f'Wrong page language: {name}'
+    assert page.open_disclosures == 0, f'All disclosures must start closed: {name}'
     for reference in page.references:
         url = urlsplit(reference)
         if url.scheme or url.netloc or not url.path:
@@ -41,6 +46,9 @@ for name, language in [('index.html', 'en'), ('zh.html', 'zh-CN')]:
         target = ((ROOT / 'dist' / url.path.lstrip('/')) if url.path.startswith('/') else (path.parent / url.path)).resolve()
         assert target.is_relative_to(ROOT / 'dist'), f'Asset outside dist: {reference}'
         assert target.exists(), f'Missing asset: {reference}'
+        if target.suffix in ('.css', '.js'):
+            digest = hashlib.sha256(target.read_bytes()).hexdigest()[:12]
+            assert url.query == f'v={digest}', f'Stale asset URL: {name} {reference}'
     assert 'Justin Jia' in path.read_text(), f'Missing owner name: {name}'
     for identifier in ('gtsp-details', 'remex-details', 'profile-background', 'profile-research'):
         assert page.disclosures.get(identifier) is False, f'Detail should start closed: {name} {identifier}'
@@ -92,6 +100,7 @@ for name in ('index.html', 'zh.html'):
             assert url.fragment in page.ids | dynamic_ids, f'Broken section link: {name} {reference}'
     assert source.count('class="scope-boundary"') == 2, 'Show both implementation scope notes before expansion'
     assert source.count('href="about:blank" aria-disabled="true"') == 3, 'Keep unpublished contact destinations disabled'
+    assert 'id="contact" hidden' not in source and 'href="#contact" hidden' not in source, 'Keep contact entry visible'
     assert source.count('class="insight-link"') == 3, 'Connect each perspective to a case'
     assert 'Propose' in source and 'Approve' in source and 'Record' in source, 'Preserve approval method'
     for metric in ('4.2%', '40%', '15%', '35%', '5TB+', '1TB+', '27'):
