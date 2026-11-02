@@ -48,6 +48,14 @@ for path in (ROOT / 'scripts').glob('*.py'):
     assert not re.search(r'[\u4e00-\u9fff]', path.read_text()), f'Implementation must use English: {path}'
 for path in (ROOT / 'locales').glob('*.json'):
     json.loads(path.read_text())
+
+# CSS masks carry navigation and disclosure cues, so missing SVGs are functional failures.
+for path in (ROOT / 'dist').glob('*.css'):
+    for reference in re.findall(r'url\([\'"]?([^\'"\)]+)', path.read_text()):
+        if urlsplit(reference).scheme or reference.startswith('#'):
+            continue
+        target = (path.parent / reference).resolve()
+        assert target.is_relative_to(ROOT / 'dist') and target.is_file(), f'Missing CSS asset: {reference}'
 print('Passed: page languages, unique IDs, local assets, JavaScript syntax, and localization separation.')
 
 # Guard the editorial boundaries and links used by the case navigation.
