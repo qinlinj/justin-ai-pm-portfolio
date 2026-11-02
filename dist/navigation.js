@@ -2,7 +2,7 @@
   const header = document.querySelector('header');
   const links = [...document.querySelectorAll('.work-index a')];
   const sections = links.map(a => document.getElementById(a.hash.slice(1))).filter(Boolean);
-  const mainLinks = [...document.querySelectorAll('#main-nav a')];
+  const mainLinks = [...document.querySelectorAll('#main-nav a:not([hidden])')];
   const mainSections = mainLinks.map(a => document.getElementById(a.hash.slice(1))).filter(Boolean);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let selectedTarget = null;
@@ -63,6 +63,11 @@
     // Notify language links without invoking a second browser anchor jump.
     dispatchEvent(new Event('hashchange'));
     navigate(id);
+    if (event.detail === 0) {
+      const target = document.getElementById(id);
+      target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
+    }
   }));
   addEventListener('scroll', () => {
     queue();

@@ -13,19 +13,13 @@
     header.querySelectorAll('.language-switch a').forEach(a => { a.href = (a.classList.contains('lang-zh') ? 'zh.html' : './') + location.hash; });
   };
   updateLanguageLinks(); addEventListener('hashchange', updateLanguageLinks);
-  const hero = document.querySelector('.hero');
   let scheduled = false;
   const paint = () => {
     scheduled = false;
     header.classList.toggle('is-scrolled', window.scrollY > 24);
-    const progress = reduced.matches ? 0 : Math.min(1, Math.max(0, window.scrollY / (hero.offsetHeight * .85)));
-    hero.style.setProperty('--hero-opacity', String(1 - progress * .32));
-    hero.style.setProperty('--hero-scale', String(1 - progress * .025));
-    hero.style.setProperty('--hero-y', `${progress * 24}px`);
-    hero.style.setProperty('--hero-sub-y', `${progress * 11}px`);
   };
   addEventListener('scroll', () => { if (!scheduled) { scheduled = true; requestAnimationFrame(paint); } }, { passive: true });
-  addEventListener('resize', paint, { passive: true });
+  addEventListener('resize', () => { if (innerWidth > 900) closeMenu(); paint(); }, { passive: true });
   reduced.addEventListener('change', paint);
   paint();
   if ('IntersectionObserver' in window) {
@@ -41,16 +35,12 @@
     if (!content) return;
     content.id = `${details.closest(".study-group") ? "study-panel" : "detail-panel"}-${index + 1}`;
     summary.setAttribute('aria-controls', content.id + (details.classList.contains('profile-details') ? ' profile-reflections' : ''));
-    const syncProfile = open => { if (!details.classList.contains('profile-details')) return; document.querySelector('#about').classList.toggle('profile-expanded', open); document.querySelector('#profile-reflections').setAttribute('aria-hidden', String(!open)); summary.setAttribute('aria-expanded', String(open)); };
+    const syncProfile = open => { summary.setAttribute('aria-expanded', String(open)); if (!details.classList.contains('profile-details')) return; document.querySelector('#about').classList.toggle('profile-expanded', open); document.querySelector('#profile-reflections').setAttribute('aria-hidden', String(!open)); };
     syncProfile(details.open);
-    const profileCue = details.querySelector('.profile-open');
-    if (profileCue) details.addEventListener('toggle', () => {
-      const label = key => window.studyLocaleData?.labels?.[key] || key;
-      profileCue.textContent = details.open ? label('Close background & reflections ↑') : label('Open background & reflections ↗');
-    });
     let animation;
     let fade;
     let intendedOpen = details.open;
+    details.addEventListener('toggle', () => { if (!animation) syncProfile(details.open); });
     addEventListener('settle-disclosures', () => {
       if (!animation) return;
       animation.cancel(); fade?.cancel(); animation = null; fade = null;
