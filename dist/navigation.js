@@ -1,4 +1,5 @@
 (() => {
+  history.scrollRestoration = 'manual';
   const header = document.querySelector('header');
   const links = [...document.querySelectorAll('.work-index a')];
   const sections = links.map(a => document.getElementById(a.hash.slice(1))).filter(Boolean);
@@ -40,11 +41,17 @@
     dispatchEvent(new Event('settle-disclosures'));
     const target = document.getElementById(id);
     if (!target) { if (!id) window.scrollTo({ top: 0, behavior: 'instant' }); return; }
-    // Open direct study links before measuring the destination.
-    if (target.matches('.study-group details, .allocated-study')) target.open = true;
+    // Nested case links open every enclosing disclosure before measuring the target.
+    const ancestors = [];
+    for (let node = target; node; node = node.parentElement) {
+      if (node.matches('details')) ancestors.push(node);
+    }
+    ancestors.reverse().forEach(details => { details.open = true; });
     // Stop an earlier animation before measuring a new destination.
     window.scrollTo({ top: window.scrollY, behavior: 'instant' });
-    const top = Math.max(0, Math.round(window.scrollY + target.getBoundingClientRect().top - offset()));
+    const restored = window.portfolioLanguagePosition;
+    const progress = !userInteracted && restored?.id === id ? restored.progress * target.offsetHeight : 0;
+    const top = Math.max(0, Math.round(window.scrollY + target.getBoundingClientRect().top - offset() + progress));
     selectedTarget = sections.includes(target) ? id : null;
     expiry = performance.now() + 1800;
     if (selectedTarget) mark(selectedTarget);
@@ -82,5 +89,6 @@
   document.addEventListener('click', () => { userInteracted = true; }, { once: true });
   // Deep links are aligned after dynamic studies and fonts have their final size.
   requestAnimationFrame(() => { if (location.hash) navigate(location.hash.slice(1), false); else sync(); });
+  addEventListener('load', () => requestAnimationFrame(() => { if (!userInteracted && location.hash) navigate(location.hash.slice(1), false); }));
   document.fonts?.ready.then(() => { if (!userInteracted && location.hash) navigate(location.hash.slice(1), false); });
 })();

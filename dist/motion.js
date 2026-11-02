@@ -29,46 +29,46 @@
     document.querySelectorAll('.profile-intro,.proof-strip,.career-card,.project-card,.insight-grid article,.career-focus,.glance-heading,.glance-points li,.teamwork,.contact>.section-label,.about>.section-label,.about-copy,.interests,.work>.section-label,.work>.section-intro,.study-group,.foundation,.thinking .section-label,.thinking .section-intro,.framework,.principles article,.contact-main,.contact-links').forEach(el => { el.classList.add('reveal'); reveal.observe(el); });
     document.documentElement.classList.add('motion-ready');
   }
+  const controllers = new Map();
   document.querySelectorAll('details').forEach((details, index) => {
-    const summary = details.querySelector('summary');
-    const content = details.querySelector('.study-body, .secondary-body, .profile-body');
-    if (!content) return;
-    content.id = `${details.closest(".study-group") ? "study-panel" : "detail-panel"}-${index + 1}`;
-    summary.setAttribute('aria-controls', content.id + (details.classList.contains('profile-details') ? ' profile-reflections' : ''));
-    const syncProfile = open => { summary.setAttribute('aria-expanded', String(open)); if (!details.classList.contains('profile-details')) return; document.querySelector('#about').classList.toggle('profile-expanded', open); document.querySelector('#profile-reflections').setAttribute('aria-hidden', String(!open)); };
-    syncProfile(details.open);
+    const summary = details.querySelector(':scope > summary');
+    const content = details.querySelector(':scope > .study-body, :scope > .secondary-body, :scope > .profile-body, :scope > .research-body, :scope > .experience-body');
+    if (!summary || !content) return;
+    details.id ||= `disclosure-${index + 1}`;
+    content.id ||= `detail-panel-${index + 1}`;
+    summary.setAttribute('aria-controls', content.id + (details.id === 'profile-background' ? ' profile-reflections' : ''));
+    const sync = open => summary.setAttribute('aria-expanded', String(open));
+    sync(details.open);
     let animation;
-    let fade;
     let intendedOpen = details.open;
-    details.addEventListener('toggle', () => { if (!animation) syncProfile(details.open); });
-    addEventListener('settle-disclosures', () => {
+    const settle = () => {
       if (!animation) return;
-      animation.cancel(); fade?.cancel(); animation = null; fade = null;
+      animation.cancel(); animation = null;
       details.open = intendedOpen;
       details.style.height = ''; details.style.overflow = '';
-    });
+      sync(intendedOpen);
+    };
+    const setOpen = open => {
+      if (details.classList.contains('experience-details')) dispatchEvent(new Event('settle-disclosures'));
+      const start = details.getBoundingClientRect().height;
+      settle(); intendedOpen = open; sync(open);
+      if (reduced.matches || !details.animate) { details.open = open; return; }
+      details.open = true;
+      const end = open ? details.getBoundingClientRect().height : summary.getBoundingClientRect().height + 2;
+      details.style.overflow = 'hidden';
+      animation = details.animate([{height: `${start}px`}, {height: `${end}px`}], {duration: 280, easing: 'ease-out', fill: 'both'});
+      animation.onfinish = settle;
+    };
+    controllers.set(details.id, setOpen);
+    details.addEventListener('toggle', () => { if (!animation) { intendedOpen = details.open; sync(details.open); } });
+    addEventListener('settle-disclosures', settle);
     summary.addEventListener('click', event => {
       if (event.defaultPrevented) return;
       event.preventDefault();
-      intendedOpen = !(animation ? intendedOpen : details.open);
-      syncProfile(intendedOpen);
-      const start = details.getBoundingClientRect().height;
-      animation?.cancel(); fade?.cancel();
-      if (reduced.matches || !details.animate) {
-        details.style.height = ''; details.style.overflow = ''; details.open = intendedOpen; return;
-      }
-      details.open = true;
-      details.style.height = 'auto';
-      const end = intendedOpen ? details.getBoundingClientRect().height : summary.getBoundingClientRect().height + 2;
-      details.style.overflow = 'hidden';
-      details.style.height = `${start}px`;
-      animation = details.animate([{ height: `${start}px` }, { height: `${end}px` }], { duration: Math.min(540, 300 + Math.abs(end - start) * .16), easing: 'cubic-bezier(.22,.68,.25,1)', fill: 'both' });
-      fade = content.animate(intendedOpen ? [{ opacity: .05, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }] : [{ opacity: 1 }, { opacity: 0 }], { duration: intendedOpen ? 360 : 200, easing: 'ease-out', fill: 'both' });
-      animation.onfinish = () => {
-        details.open = intendedOpen;
-        details.style.height = ''; details.style.overflow = '';
-        animation.cancel(); fade.cancel(); animation = null; fade = null;
-      };
+      const open = !(animation ? intendedOpen : details.open);
+      setOpen(open);
+      // Background controls both panels; research also has its own independent control.
+      if (details.id === 'profile-background') controllers.get('profile-research')?.(open);
     });
   });
 })();

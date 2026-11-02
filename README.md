@@ -25,7 +25,7 @@ Open http://localhost:8000 for English and http://localhost:8000/zh.html for Chi
 | `content/*.zh.html` | Native Chinese counterparts |
 | `dist/studies.js` | English architecture cases and case renderer |
 | `locales/zh-*.json` | Chinese static copy, studies, accessibility and interaction labels |
-| `dist/motion.js`, `dist/navigation.js` | Disclosure, animation, language and navigation behavior |
+| `dist/motion.js`, `dist/navigation.js`, `dist/language.js` | Disclosure, animation, language and navigation behavior |
 | `dist/*.css` | Existing visual system; preserve stylesheet order |
 | `dist/zh.html`, `dist/data.zh.js` | Generated Chinese output; do not edit directly |
 | `.openai/hosting.json` | Existing Sites project identity; not a credential |
@@ -62,3 +62,7 @@ Before publishing, recheck `main`; abort stale work if it advanced. Skip a SHA a
 ## Initial import
 
 Imported from the existing Sites snapshot at source commit `8f4273127de67ef0d9db290f1177ec9efd7bc75f`. GitHub history starts with this import rather than copying the managed hosting repository history. Repository privacy does not change the website's public audience.
+
+## Design reference
+
+See [the design system](docs/design-system.md) for typography, emphasis, diagram alignment, disclosure behavior, and bilingual navigation.

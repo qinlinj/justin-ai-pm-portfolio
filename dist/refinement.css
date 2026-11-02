@@ -208,3 +208,79 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
 @media (prefers-reduced-motion: reduce) {
   .disclosure-arrow:after, .language-switch a, .proof-strip.evidence-links>a { transition: none; }
 }
+
+/* Progressive disclosure and alignment: summaries first, depth on demand. */
+.hero-bottom { display: flex; flex-direction: column; align-items: stretch; gap: 24px; }
+.hero-bottom>.button { align-self: center; justify-content: center; gap: 14px; min-width: 220px; margin: 0; }
+.action-icon { width: 20px; height: 20px; display: block; flex: 0 0 20px; transform: rotate(90deg); filter: invert(1); }
+.hero-system>.eyebrow { justify-content: center; text-align: center; }
+.hero-system .system-node { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 16px; background: #ffffff75; border: 1px solid #fff; box-shadow: none; }
+.system-node>span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #c8d5bf; background: #edf3e7; }
+.hero-system .system-connector { height: 28px; min-height: 28px; }
+
+.about { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.about>.section-label { grid-row: 1; margin-bottom: 0; }
+.about-copy, .interests { display: grid; grid-template-rows: subgrid; grid-row: 2 / span 2; gap: 24px; padding: 28px; margin: 0; justify-content: normal; }
+.about-copy { grid-column: 1; }
+.interests { grid-column: 2; }
+.profile-intro h2, .research-intro h2 { font-size: 28px; line-height: 1.4; }
+.profile-intro>p, .research-intro>p { margin-top: 16px; font-size: 16px; line-height: 1.85; color: var(--text-body); }
+.profile-details, .research-details { margin: 0; border: 1px solid var(--surface-border); border-radius: var(--radius-panel); background: #ffffff50; align-self: start; }
+.about:has(.profile-details[open]):has(.research-details[open]) .profile-details,
+.about:has(.profile-details[open]):has(.research-details[open]) .research-details { align-self: stretch; }
+.profile-details>summary, .research-details>summary { min-height: 100px; padding: 16px; gap: 12px; }
+.profile-avatar { width: 40px; height: 40px; }
+.research-mark svg { width: 24px; height: 24px; }
+.profile-body, .research-body { padding: 0 18px 18px; }
+.profile-block, .research-body article { padding: 20px 0; margin: 0; border-top: 1px solid #cdd8c566; }
+.profile-block h3, .research-body h3 { font-size: 18px; line-height: 1.5; margin: 0 0 12px; }
+.profile-block p, .research-body p { font-size: 16px; line-height: 1.85; color: var(--text-body); }
+.profile-block p+p { margin-top: 12px; }
+.experience-details { margin-top: 24px; border: 1px solid var(--surface-border); border-radius: var(--radius-panel); background: #ffffff40; }
+.experience-details>summary { min-height: 68px; padding: 18px 22px; font-size: 16px; font-weight: 600; color: var(--green); }
+.experience-details>summary>span:first-child { flex: 1; }
+.experience-body { padding: 0 18px 18px; }
+.experience-body>.integrated-work { margin-top: 8px; }
+.key-point { font-weight: 600; color: #2e603f; }
+.insight-grid h3, .case-evidence dt, .acceptance-list strong { color: #2e603f; }
+
+/* Fixed connector tracks place arrows midway between equal-width process nodes. */
+.flow, .allocated-study .flow, .project-flow { display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr); align-items: stretch; gap: 0; }
+.gate-strip { display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr); align-items: stretch; gap: 0; max-width: none; }
+.flow b, .project-flow i, .gate-strip i { margin: 0; justify-self: center; align-self: center; width: 16px; height: 16px; }
+.flow span, .project-flow span, .gate-strip span { display: grid; place-items: center; min-width: 0; text-align: center; }
+.support-paths ol { gap: 32px; }
+.support-paths li { text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 112px; }
+.support-paths li:not(:last-child):after { right: -25px; top: 50%; transform: translateY(-50%); }
+.framework { grid-template-columns: repeat(6, minmax(0, 1fr)); display: grid; gap: 12px; padding: 16px; }
+.framework li { padding: 16px 10px; min-height: 100px; border: 1px solid var(--surface-border); border-radius: var(--radius-panel); background: #ffffff60; align-items: center; text-align: center; justify-content: center; flex-direction: column; }
+.framework li:before { margin-bottom: 8px; }
+.framework li:not(:last-child):after, .framework li:nth-child(3):after { content: none; display: none; }
+@media (max-width: 1000px) { .framework { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .hero-bottom>.button { width: min(100%, 280px); }
+  .about { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .about-copy, .interests { grid-column: auto; grid-row: auto; display: block; padding: 22px; }
+  .profile-details, .research-details { margin-top: 24px; }
+  .profile-intro h2, .research-intro h2 { font-size: 26px; }
+  .profile-details>summary, .research-details>summary { min-height: 92px; padding: 12px; gap: 10px; }
+  .profile-body, .research-body { padding: 0 12px 14px; }
+  .experience-details>summary { padding: 16px 12px; font-size: 15px; }
+  .experience-body { padding: 0 8px 12px; }
+  .experience-body .case-bridge { padding-left: 8px; padding-right: 8px; }
+  .flow, .allocated-study .flow, .project-flow, .gate-strip { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .flow b, .project-flow i, .gate-strip i { margin: 6px 0; transform: rotate(90deg); }
+  .support-paths ol { gap: 32px; }
+  .support-paths li:not(:last-child):after { right: auto; left: 50%; top: auto; bottom: -25px; transform: translateX(-50%) rotate(90deg); }
+  .framework { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px; }
+  .framework li { min-height: 102px; gap: 0; }
+}
+.flow span:before { content: none; }
+@media(max-width:380px) {
+  .about .profile-avatar { display: none; }
+  .experience-body { padding-left: 0; padding-right: 0; }
+  .experience-body .case-bridge { padding-left: 0; padding-right: 0; }
+  .case-bridge .allocated-study summary { padding-left: 8px; padding-right: 8px; }
+}
+/* Proposal status is already stated in the summary; avoid repeating it inside. */
+.study-group .study-body>.study-note, .study-group .study-body>.impact-note { display: none; }
