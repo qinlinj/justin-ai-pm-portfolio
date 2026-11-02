@@ -25,7 +25,7 @@
 
 - English default, working EN / Chinese switcher, natural professional Chinese rather than literal translation.
 - Preserve sticky top:0 navigation, accurate section targets, reduced-motion support and accessible disclosure controls.
-- The background control opens or closes both profile panels; the research panel also has an independent disclosure control. Center logo, framework arrows, and contact content. Keep mobile touch targets generous and prevent horizontal overflow.
+- Both profile controls open or close the background and research panels together. All disclosures start closed on fresh page loads. Center logo, framework arrows, and contact content. Keep mobile touch targets generous and prevent horizontal overflow.
 - Use restrained cream, dark green, rounded glass cards; no purple gradients or stock AI imagery.
 
 ## Verification and delivery

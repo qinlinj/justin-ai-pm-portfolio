@@ -1,6 +1,6 @@
 from pathlib import Path
 from html.parser import HTMLParser
-import json, html, re
+import json, html, re, hashlib
 root=Path(__file__).resolve().parent.parent
 ui=json.loads((root/'locales/zh-ui.json').read_text())
 translations=json.loads((root/'locales/zh-static.json').read_text())
@@ -39,9 +39,17 @@ if p.missing:raise ValueError('Missing translations: '+repr(p.missing))
 zh=''.join(p.out)
 zh=re.sub(r'<!--career-start-->.*?<!--career-end-->', lambda _: '<!--career-start-->\n'+(root/'content/career.zh.html').read_text()+'\n<!--career-end-->', zh, flags=re.S)
 zh=re.sub(r'<!--insights-start-->.*?<!--insights-end-->', lambda _: '<!--insights-start-->\n'+(root/'content/insights.zh.html').read_text()+'\n<!--insights-end-->', zh, flags=re.S)
-zh=zh.replace('<script src="studies.js">','<script src="data.zh.js"></script><script src="studies.js">')
+zh=re.sub(r'<script src="studies\.js(?:\?[^\"]*)?">', '<script src="data.zh.js"></script><script src="studies.js">', zh)
 (root/'dist/zh.html').write_text(zh)
 data=json.loads((root/'locales/zh-studies.json').read_text())
 data['labels']=ui['labels']
 (root/'dist/data.zh.js').write_text('window.studyLocaleData = '+json.dumps(data,ensure_ascii=False)+';\n')
+# Content-based asset URLs prevent a new page from reusing an older interaction script.
+def version_asset(match):
+ path=root/'dist'/match[2]
+ digest=hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+ return f'{match[1]}="{match[2]}?v={digest}"'
+for name in ('index.html', 'zh.html'):
+ path=root/'dist'/name
+ path.write_text(re.sub(r'(href|src)="([^"?#]+\.(?:css|js))(?:\?[^\"]*)?"', version_asset, path.read_text()))
 print('Built complete Chinese page and nine localized studies; all static text covered.')

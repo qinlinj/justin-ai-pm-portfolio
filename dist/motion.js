@@ -30,13 +30,35 @@
     document.documentElement.classList.add('motion-ready');
   }
   const controllers = new Map();
+  let releaseAnchor = () => {};
+  const retainMobileControl = (summary, top) => {
+    releaseAnchor();
+    if (!matchMedia('(max-width: 700px)').matches) return;
+    const until = performance.now() + (reduced.matches ? 0 : 300);
+    let frame;
+    const stop = () => {
+      cancelAnimationFrame(frame);
+      ['wheel', 'touchmove', 'keydown'].forEach(type => removeEventListener(type, stop));
+    };
+    const track = () => {
+      const delta = summary.getBoundingClientRect().top - top;
+      if (Math.abs(delta) > .5) scrollTo({top: scrollY + delta, behavior: 'instant'});
+      if (performance.now() < until) frame = requestAnimationFrame(track);
+      else stop();
+    };
+    releaseAnchor = stop;
+    ['wheel', 'touchmove', 'keydown'].forEach(type => addEventListener(type, stop, {passive: true}));
+    frame = requestAnimationFrame(track);
+  };
+  addEventListener('settle-disclosures', () => releaseAnchor());
   document.querySelectorAll('details').forEach((details, index) => {
     const summary = details.querySelector(':scope > summary');
     const content = details.querySelector(':scope > .study-body, :scope > .secondary-body, :scope > .profile-body, :scope > .research-body, :scope > .experience-body');
     if (!summary || !content) return;
     details.id ||= `disclosure-${index + 1}`;
     content.id ||= `detail-panel-${index + 1}`;
-    summary.setAttribute('aria-controls', content.id + (details.id === 'profile-background' ? ' profile-reflections' : ''));
+    const linkedProfile = ['profile-background', 'profile-research'].includes(details.id);
+    summary.setAttribute('aria-controls', linkedProfile ? 'profile-history profile-reflections' : content.id);
     const sync = open => summary.setAttribute('aria-expanded', String(open));
     sync(details.open);
     let animation;
@@ -65,10 +87,14 @@
     summary.addEventListener('click', event => {
       if (event.defaultPrevented) return;
       event.preventDefault();
+      const controlTop = summary.getBoundingClientRect().top;
       const open = !(animation ? intendedOpen : details.open);
       setOpen(open);
-      // Background controls both panels; research also has its own independent control.
-      if (details.id === 'profile-background') controllers.get('profile-research')?.(open);
+      // Both profile controls operate the same pair of panels.
+      if (linkedProfile) {
+        controllers.get(details.id === 'profile-background' ? 'profile-research' : 'profile-background')?.(open);
+        retainMobileControl(summary, controlTop);
+      }
     });
   });
 })();
