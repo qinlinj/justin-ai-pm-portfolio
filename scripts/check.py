@@ -18,6 +18,8 @@ class Page(HTMLParser):
         self.language = None
         self.disclosures = {}
         self.open_disclosures = 0
+        self.tabs = []
+        self.tabpanels = {}
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == 'html':
@@ -29,6 +31,10 @@ class Page(HTMLParser):
             self.disclosures[attrs['id']] = 'open' in attrs
         if tag == 'details' and 'open' in attrs:
             self.open_disclosures += 1
+        if attrs.get('role') == 'tab':
+            self.tabs.append(attrs)
+        if attrs.get('role') == 'tabpanel':
+            self.tabpanels[attrs['id']] = attrs
         for key in ('src', 'href'):
             if attrs.get(key):
                 self.references.append(attrs[key])
@@ -50,6 +56,15 @@ for name, language in [('index.html', 'en'), ('zh.html', 'zh-CN')]:
             digest = hashlib.sha256(target.read_bytes()).hexdigest()[:12]
             assert url.query == f'v={digest}', f'Stale asset URL: {name} {reference}'
     assert 'Justin Jia' in path.read_text(), f'Missing owner name: {name}'
+    assert len(page.tabs) == len(page.tabpanels) == 6, f'Six research topics required: {name}'
+    assert sum(t.get('aria-selected') == 'true' for t in page.tabs) == 1, 'Select exactly one topic'
+    for tab in page.tabs:
+        panel = page.tabpanels.get(tab['aria-controls'])
+        assert panel and panel['aria-labelledby'] == tab['id'], 'Broken research tab association'
+        assert ('hidden' not in panel) == (tab['aria-selected'] == 'true'), 'Topic visibility mismatch'
+    research = (ROOT / 'content' / f'research.{"en" if language == "en" else "zh"}.html').read_text()
+    assert len(re.findall(r'href="https://', research)) == 7, 'Keep primary research references'
+    assert 'Weihai, China' in path.read_text() if language == 'en' else '\u5a01\u6d77' in path.read_text(), 'Incorrect undergraduate location'
     for identifier in ('gtsp-details', 'remex-details', 'profile-background', 'profile-research'):
         assert page.disclosures.get(identifier) is False, f'Detail should start closed: {name} {identifier}'
 

@@ -1,0 +1,39 @@
+<div class="interest-tabs" role="tablist" aria-label="研究方向">
+<button type="button" role="tab" id="interest-tab-memory" data-interest="memory" aria-controls="interest-memory" aria-selected="true" tabindex="0">Memory</button>
+<button type="button" role="tab" id="interest-tab-knowledge" data-interest="knowledge" aria-controls="interest-knowledge" aria-selected="false" tabindex="-1">Knowledge</button>
+<button type="button" role="tab" id="interest-tab-evals" data-interest="evals" aria-controls="interest-evals" aria-selected="false" tabindex="-1">Evals</button>
+<button type="button" role="tab" id="interest-tab-skills" data-interest="skills" aria-controls="interest-skills" aria-selected="false" tabindex="-1">Skills</button>
+<button type="button" role="tab" id="interest-tab-coordination" data-interest="coordination" aria-controls="interest-coordination" aria-selected="false" tabindex="-1">多 Agent</button>
+<button type="button" role="tab" id="interest-tab-boundaries" data-interest="boundaries" aria-controls="interest-boundaries" aria-selected="false" tabindex="-1">执行边界</button>
+</div>
+<section class="interest-panel" id="interest-memory" role="tabpanel" aria-labelledby="interest-tab-memory" tabindex="0">
+<h3>记忆能否改善下一次决策？</h3><p class="interest-signal">MemoryArena 把记忆放进连续任务中，检查先前的行动和反馈能否帮助后续决策。记得住对话，与能把下一件事做好，是两种能力。</p><dl><div><dt>关注的问题</dt><dd>旅行规划适合研究这个问题：行程状态与长期偏好分开保存，保留来源，新偏好能覆盖旧偏好。个性化服务也必须允许纠错和撤回。</dd></div><div><dt>验证思路</dt><dd>跨会话回放偏好变化，检查行程约束、旧记忆误用、删除效果与上下文维护成本。</dd></div></dl>
+<div class="interest-reading"><span>相关研究</span>
+<a href="https://arxiv.org/abs/2602.16313" target="_blank" rel="noopener noreferrer">MemoryArena · 2026-09 更新<span class="external-arrow" aria-hidden="true"></span></a>
+</div></section>
+<section class="interest-panel" id="interest-knowledge" role="tabpanel" aria-labelledby="interest-tab-knowledge" tabindex="0" hidden>
+<h3>研究系统能否指出证据缺口？</h3><p class="interest-signal">DeepResearch Bench II 用专家报告中的细粒度标准，检查信息覆盖、分析与表达。报告写得流畅、附有引用，还不够。</p><dl><div><dt>关注的问题</dt><dd>GTSP 的文档问答经验让我关注另一种交付单位：围绕研究问题组织证据、冲突与待补信息。读者应能逐条检查结论，再用于决策。</dd></div><div><dt>验证思路</dt><dd>使用相同资料，对比直接 RAG 与有预算上限的研究流程。检查覆盖度、结论依据、未解决冲突、返工量与成本。</dd></div></dl>
+<div class="interest-reading"><span>相关研究</span>
+<a href="https://arxiv.org/abs/2601.08536" target="_blank" rel="noopener noreferrer">DeepResearch Bench II · 2026-09 更新<span class="external-arrow" aria-hidden="true"></span></a>
+</div></section>
+<section class="interest-panel" id="interest-evals" role="tabpanel" aria-labelledby="interest-tab-evals" tabindex="0" hidden>
+<h3>任务完成了，还是只说完成了？</h3><p class="interest-signal">Agent evals 需要核对最终业务状态，也要检查执行 traces。重复运行同一任务，才能看出稳定性；单次演示无法说明这些。</p><dl><div><dt>关注的问题</dt><dd>客服回复合理，不代表订单修改正确。任务解决、权限合规和人工交接应分别检查，observability 要能定位具体失败环节。</dd></div><div><dt>验证思路</dt><dd>固定场景重复运行，加入工具超时、重复请求与拒绝授权。检查任务结果及单次解决成本，单独记录越权操作。</dd></div></dl>
+<div class="interest-reading"><span>相关研究</span>
+<a href="https://www.anthropic.com/research/demystifying-evals-for-ai-agents" target="_blank" rel="noopener noreferrer">Anthropic: Agent evals · 2026-01<span class="external-arrow" aria-hidden="true"></span></a>
+</div></section>
+<section class="interest-panel" id="interest-skills" role="tabpanel" aria-labelledby="interest-tab-skills" tabindex="0" hidden>
+<h3>哪些专业经验值得封装成 Skill？</h3><p class="interest-signal">SkillsBench 在相同任务中比较是否使用整理过的 Skills。重点是固定模型和运行环境后，哪些操作知识真正改善了可验证的结果。</p><dl><div><dt>关注的问题</dt><dd>定制 Agent 咨询中的需求澄清、工具操作、验收检查与审批规则，都值得研究如何复用。客户数据与权限仍须独立管理。</dd></div><div><dt>验证思路</dt><dd>用新任务比较精简 Skill 与复杂套件，检查完成情况、误选、维护成本，以及流程更新后的表现。</dd></div></dl>
+<div class="interest-reading"><span>相关研究</span>
+<a href="https://arxiv.org/abs/2602.12670" target="_blank" rel="noopener noreferrer">SkillsBench · 2026-06 更新<span class="external-arrow" aria-hidden="true"></span></a>
+</div></section>
+<section class="interest-panel" id="interest-coordination" role="tabpanel" aria-labelledby="interest-tab-coordination" tabindex="0" hidden>
+<h3>什么时候值得增加一个 Agent？</h3><p class="interest-signal">Agent 系统扩展研究表明，协作收益取决于任务结构。长任务 harness 的实践也强调结构化交接与独立检查。</p><dl><div><dt>关注的问题</dt><dd>交通与住宿可以并行研究，但整份行程只有一套预算和时间约束。工程交付还带来另一个问题：会话结束后，任务能否按记录的状态继续。</dd></div><div><dt>验证思路</dt><dd>在相同预算下比较单 Agent 与协作方案，测试假设冲突、检查点恢复、重复劳动和最终方案一致性。</dd></div></dl>
+<div class="interest-reading"><span>相关研究</span>
+<a href="https://arxiv.org/abs/2512.08296" target="_blank" rel="noopener noreferrer">Agent system scaling · 2026-04 更新<span class="external-arrow" aria-hidden="true"></span></a>
+<a href="https://www.anthropic.com/research/harness-design-long-running-apps" target="_blank" rel="noopener noreferrer">Anthropic: Long-running harnesses · 2026-03<span class="external-arrow" aria-hidden="true"></span></a>
+</div></section>
+<section class="interest-panel" id="interest-boundaries" role="tabpanel" aria-labelledby="interest-tab-boundaries" tabindex="0" hidden>
+<h3>路径被阻断后，系统会停下来吗？</h3><p class="interest-signal">近期非预期操作的研究提醒我们：持续尝试与合法授权必须分开。路径被阻断，不应成为另找办法绕过限制的理由。</p><dl><div><dt>关注的问题</dt><dd>GTSP 业务工具与 Remex 审批流程都涉及这个问题。action gate 应放在执行层；模型可以提出操作，不可逆动作仍由指定负责人批准。</dd></div><div><dt>验证思路</dt><dd>测试拒绝操作后是否明确停止、完整交接，以及是否会换一个工具造成同样的违规结果。</dd></div></dl>
+<div class="interest-reading"><span>相关研究</span>
+<a href="https://www.anthropic.com/research/investigating-unintended-model-actions" target="_blank" rel="noopener noreferrer">Anthropic: Unintended model actions · 2026-10<span class="external-arrow" aria-hidden="true"></span></a>
+</div></section>

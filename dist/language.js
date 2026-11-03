@@ -1,7 +1,5 @@
 /* Real language URLs carry only public UI state, then return to a clean address. */
 (() => {
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const nativeTransition = 'onpageswap' in window && 'onpagereveal' in window;
   const incoming = new URL(location.href);
   incoming.hash = window.portfolioInitialHash || incoming.hash;
   if (incoming.searchParams.has('panels')) {
@@ -11,12 +9,13 @@
     });
     const scenario = incoming.searchParams.get('scenario');
     [...document.querySelectorAll('.scenario-switch button')].find(button => button.dataset.case === scenario)?.click();
+    const interest = incoming.searchParams.get('interest');
+    [...document.querySelectorAll('.interest-tabs button')].find(button => button.dataset.interest === interest)?.click();
     const progress = Number(incoming.searchParams.get('position')) || 0;
     window.portfolioLanguagePosition = {id: incoming.hash.slice(1), progress: Math.min(1, Math.max(0, progress))};
-    incoming.searchParams.delete('panels'); incoming.searchParams.delete('position'); incoming.searchParams.delete('scenario');
+    incoming.searchParams.delete('panels'); incoming.searchParams.delete('position'); incoming.searchParams.delete('scenario'); incoming.searchParams.delete('interest');
     incoming.hash = '';
     history.replaceState(null, '', incoming.href);
-    if (!reduced.matches && !nativeTransition) document.querySelector('main').animate([{opacity: .92}, {opacity: 1}], {duration: 180, easing: 'ease-out'});
   }
   let leaving = false;
   document.querySelectorAll('.language-switch a').forEach(link => {
@@ -37,11 +36,13 @@
       // Freeze any in-page scroll before recording the reading position.
       window.scrollTo({top: window.scrollY, behavior: 'instant'});
       const line = document.querySelector('header').getBoundingClientRect().bottom + 24;
-      const candidates = [...document.querySelectorAll('#main, #about, #focus, .boundary-explorer, #experience, .career-card, #projects, .project-card, #work, .study-group, .allocated-study, #thinking, #contact')];
+      const candidates = [...document.querySelectorAll('#main, #about, #profile-background[open], #research-interests, #profile-research[open], #focus, .boundary-explorer, #experience, .career-card, #projects, .project-card, #work, .study-group, .allocated-study, #thinking, #contact')];
       let anchor = candidates.filter(el => {
         for (let node = el.parentElement; node; node = node.parentElement) if (node.matches('details:not([open])')) return false;
         return el.getClientRects().length && el.getBoundingClientRect().top <= line + 1;
       }).at(-1) || document.querySelector('main');
+      const nextVisible = candidates.find(el => el.getClientRects().length && el.getBoundingClientRect().top > line && el.getBoundingClientRect().top < line + 160);
+      if (nextVisible && (anchor.id === 'main' || anchor.getBoundingClientRect().top < line - 160)) anchor = nextVisible;
       const selected = document.getElementById(location.hash.slice(1));
       const selectedBounds = selected?.getBoundingClientRect();
       const selectedCaseVisible = selected?.matches('.allocated-study[open]') && selectedBounds.top < line + 160 && selectedBounds.bottom > line;
@@ -57,8 +58,9 @@
       destination.searchParams.set('position', progress.toFixed(4));
       const scenario = document.querySelector('.scenario-switch button[aria-pressed="true"]');
       if (scenario) destination.searchParams.set('scenario', scenario.dataset.case);
-      // Native cross-document transitions preserve the old frame until the new one is ready.
-      // Without them, navigate immediately instead of fading to a washed-out loading state.
+      const interest = document.querySelector('.interest-tabs [aria-selected="true"]');
+      if (interest) destination.searchParams.set('interest', interest.dataset.interest);
+      // Navigate in the click event; the browser keeps the current frame until commit.
       location.assign(destination.href);
     });
   });
