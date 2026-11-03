@@ -266,3 +266,4 @@ header { background: linear-gradient(120deg, #ffffffe0, #f1f7edbf); border-botto
   .study-group .study-body { padding: 18px 14px; }
   .source-link>span:first-child { text-decoration: none; }
 }
+.hero-bottom>p { text-wrap: balance; }
