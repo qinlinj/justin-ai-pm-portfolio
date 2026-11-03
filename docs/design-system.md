@@ -23,7 +23,7 @@ GTSP starts closed. On expansion, payments, authentication, migration, and their
 
 Use primary ink `#19211f`, body `#3e4844`, and supporting text `#626d66`. Green `#285b44` identifies accents and interaction states. Body text uses neutral tones rather than green throughout. Use underlines for text links, not headings or arbitrary emphasis. Preserve metric wording and numerical meaning.
 
-`polish.css` is the final presentation layer after the retained stylesheets. No remote font request is required. English tracking is restrained and text width is bounded. Avoid text blur or opacity-based scroll reveals.
+`polish.css` is the final presentation layer after the retained stylesheets. No remote font request is required. English tracking is restrained and text width is bounded. Avoid persistent text blur or opacity-based scroll reveals. Intentional disclosure opening may use a 220ms blur-to-clear reveal; settled text stays sharp and reduced motion bypasses it.
 
 ## Surfaces and connectors
 
@@ -44,7 +44,7 @@ All disclosures start closed on fresh loads, including incoming fragment URLs. A
 
 Language links remain ordinary real URLs. A native cross-document view transition holds the previous frame until the next page is ready, keeping the header visually stable. Supporting browsers cross-fade for 260ms; reduced-motion preferences disable the transition. Other browsers navigate immediately with a subtle arrival fade, without the previous fade-out delay. Target documents are prefetched on pointer hover or keyboard focus.
 
-Temporary URL parameters carry only expanded disclosure IDs and section-relative reading position; they are removed on arrival. No personal or persistent storage is involved. Changing language preserves user-opened panels, while a later fresh load resets them. All local JS/CSS URLs use generated content hashes so an updated page cannot silently reuse stale behavior or styles.
+Temporary URL parameters carry only expanded disclosure IDs, the selected comparison scenario, and section-relative reading position; they are removed on arrival. No personal or persistent storage is involved. Changing language preserves user-opened panels, while a later fresh load resets them. All local JS/CSS URLs use generated content hashes so an updated page cannot silently reuse stale behavior or styles.
 
 ## Verification
 
@@ -56,3 +56,11 @@ Temporary URL parameters carry only expanded disclosure IDs and section-relative
 - Locale generation, generated asset hashes, JS syntax, local asset references, nine-note coverage, and supplied metrics are checked by repository scripts.
 
 Physical phones, a second browser engine, and OS-level reduced-motion settings are not covered by this browser session. Native view-transition support varies; the immediate-navigation fallback remains available. Publication must be verified separately against reviewed GitHub main.
+
+## Case connections and mobile surfaces
+
+Each architecture note names the experience behind it, links to the relevant record, and fronts three boundaries: Agent scope, stop condition, and human decision. These are design intent for future work. The two delivered Agent cases also expose their human boundary before expansion.
+
+The inline task comparison uses three buttons with `aria-pressed`, a 44px minimum height, and a polite result announcement. A language change retains the selected scenario. Source links use a geometric return arrow and a short destination outline.
+
+On phones, future studies use one outer gutter and a single reading surface rather than nested desktop cards. Perspective uses the same outer alignment as experience and projects. Boundary grids stack with clear separators; desktop uses three equal columns.

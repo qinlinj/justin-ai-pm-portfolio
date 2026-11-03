@@ -18,7 +18,7 @@
     "Architecture": "架构方案",
     "Decisions & trade-offs": "关键决策与权衡",
     "Product implications": "预期收益与代价",
-    "Evaluation plan": "评估计划",
+    "Evaluation plan": "Evals 计划",
     "In development / architecture notes": "开发中 / 架构笔记",
     "Completed work / architecture notes": "已完成工作 / 架构笔记",
     "The notes retain architecture analysis and evaluation plans; individual design components and intended benefits are not claims of deployed implementation or measured results.": "系统方案与评估计划。实际交付范围以项目经历为准，预期收益属于设计判断。",
@@ -38,7 +38,16 @@
     "Future project proposal": "未来项目提案",
     "Design priority": "设计重点",
     "Proposed architecture extensions and evaluation plans.": "后续架构方案与评估计划。",
-    "Proposed workflow architecture for document questions and business actions.": "文档问答与业务操作的工作流设计方案。"
+    "Proposed workflow architecture for document questions and business actions.": "文档问答与业务操作的工作流设计方案。",
+    "Agent scope": "Agent 负责",
+    "Stop condition": "停止条件",
+    "Human decision": "人工介入",
+    "Experience behind this design": "设计的起点",
+    "Document Q&A": "文档问答",
+    "Refund request": "退款请求",
+    "Travel plan": "旅行规划",
+    "Choose a task": "选择任务",
+    "Design boundaries": "设计边界"
   },
   "description": "Justin Jia 的技术型 AI PM 作品集：全栈工程经历、客服与旅行规划 Agent 实践，以及 AI 系统架构与产品判断。",
   "languageName": "中文"

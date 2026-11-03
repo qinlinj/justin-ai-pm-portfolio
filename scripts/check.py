@@ -88,12 +88,22 @@ for groups in (english_groups, chinese_groups):
             assert len(study['flow']) >= 4, 'Preserve architecture flow depth'
 dynamic_ids = {g['id'] for g in english_groups} | {'foundations'}
 study_ids = {'study-docs', 'study-research', 'study-support', 'study-trip', 'study-fact', 'study-multimodal', 'study-video', 'study-reasoning', 'study-coding'}
+english_contexts = json.loads(re.search(r'const caseContexts = (\{.*?\n\});', studies_source, re.S)[1])
+chinese_contexts = json.loads((ROOT / 'locales/zh-studies.json').read_text())['contexts']
+for contexts in (english_contexts, chinese_contexts):
+    assert set(contexts) == study_ids, 'Every architecture note needs an experience and decision boundary'
+    for context in contexts.values():
+        for field in ('source', 'sourceLabel', 'bridge', 'connection', 'can', 'stop', 'human'):
+            assert context.get(field), f'Missing case connection field: {field}'
 assert all(repr(identifier) in studies_source for identifier in study_ids), 'Missing stable case ID'
 dynamic_ids |= study_ids
 for name in ('index.html', 'zh.html'):
     page = Page(ROOT / 'dist' / name)
     source = page.path.read_text()
     page.feed(source)
+    contexts = english_contexts if name == 'index.html' else chinese_contexts
+    assert all(context['source'] in page.ids for context in contexts.values()), 'Broken experience source link'
+    assert source.count('class="case-boundary"') == 2, 'Both delivered Agent cases need a visible decision boundary'
     for reference in page.references:
         url = urlsplit(reference)
         if not url.scheme and not url.netloc and not url.path and url.fragment:

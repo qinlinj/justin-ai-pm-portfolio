@@ -141,5 +141,8 @@
   "Extend to multimodal and coding workflows.": "再扩展多模态与编程场景",
   "Test image understanding and repository changes within explicit permissions, latency budgets, and review steps.": "围绕图像理解与代码修改，验证权限范围、延迟预算和人工审查流程。",
   "Use reasoning as a shared capability.": "将推理能力用于各类任务",
-  "Compare bounded reasoning budgets across these tasks; expand only when verified outcomes justify the extra compute.": "在上述任务中比较不同推理预算，只有结果改善足以支撑新增成本时，才扩大计算投入。"
+  "Compare bounded reasoning budgets across these tasks; expand only when verified outcomes justify the extra compute.": "在上述任务中比较不同推理预算，只有结果改善足以支撑新增成本时，才扩大计算投入。",
+  "Built commerce and data platforms. Delivered support and trip planning Agents, from requirements and architecture to development and acceptance.": "从电商、数据平台到客服与旅行规划 Agent，覆盖需求、架构、开发与验收。",
+  "Five directions drawn from delivered work: document Q&A, travel planning, commerce search, data pipelines, and engineering delivery.": "从文档问答、旅行规划、商品搜索、数据管道与工程交付中，延伸出五个后续方向。",
+  "Evidence verification": "事实核查"
 }
