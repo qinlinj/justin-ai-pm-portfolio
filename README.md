@@ -1,6 +1,6 @@
 # Justin Jia — AI PM Portfolio
 
-Bilingual, buildless portfolio for technical AI PM and AI systems roles. This private repository is the editorial source of truth. The existing public site is https://justin-ai-system-design.justin-1091.chatgpt.site/.
+Bilingual, buildless portfolio for technical AI PM and AI systems roles. This private repository is the editorial source of truth. The current public Site is https://justin-ai-product-portfolio.remex-studio-5376.chatgpt.site/. On November 3, 2026, the owner authorized a new Site from this repository because the prior hosting project was inaccessible to the current connector. The original Site at https://justin-ai-system-design.justin-1091.chatgpt.site/ remains unchanged.
 
 ## Run locally
 
@@ -55,7 +55,7 @@ Use independent branches/worktrees for parallel agents. Assign file ownership to
 
 GitHub stores source and history. Sites hosts a deployed snapshot; it is not automatically linked by a Git remote or GitHub Actions. The merge-triggered ChatGPT task is the bridge. Its successful registration is reported in the setup conversation; a future run must still succeed before publication is confirmed.
 
-The publication controller must read the Sites skill, retrieve the latest `main` SHA, run checks, and copy the reviewed source into the managed Sites checkout. Preserve project `appgprj_6ae3e83013c881918b549970ced39a2c` and its public audience. Use the Sites source helper to package, save, and deploy. GitHub and Sites commits can have different SHAs. Record the GitHub source SHA in deployment metadata (`dist/build-info.json`) and report the deployed source SHA with the live URL. Do not store credentials in the repository or public assets.
+The publication controller must read the Sites skill, retrieve the latest `main` SHA, run checks, and copy the reviewed source into the managed Sites checkout. Preserve project `appgprj_6ae99fc1a53c8191a18c2d9293685ed9` and its public audience. Use the Sites source helper to package, save, and deploy. GitHub and Sites commits can have different SHAs. Record the GitHub source SHA in deployment metadata (`dist/build-info.json`) and report the deployed source SHA with the live URL. Do not store credentials in the repository or public assets.
 
 Before publishing, recheck `main`; abort stale work if it advanced. Skip a SHA already deployed. If checks or publication fail, retain the existing live version and report the blocker. Do not publish uncommitted edits or rebuild the portfolio from scratch. Manual requests to publish latest main use the same checks and process. The webhook starts work after a merged PR; it is not a guaranteed instant deployment.
 
@@ -67,4 +67,4 @@ Imported from the existing Sites snapshot at source commit `8f4273127de67ef0d9db
 
 See [the design system](docs/design-system.md) for typography, emphasis, diagram alignment, disclosure behavior, and bilingual navigation.
 
-See [the final review](docs/portfolio-final-review.md) for the requirement matrix, verification limits, research sources, and remaining hiring evidence. Local CSS and JavaScript URLs are content-versioned by the locale generator; rerun it after interaction or style changes.
+See [the integration acceptance review](docs/portfolio-integration-review.md) and [the earlier review](docs/portfolio-final-review.md) for the requirement matrix, verification limits, research sources, and remaining hiring evidence. Local CSS and JavaScript URLs are content-versioned by the locale generator; rerun it after interaction or style changes.

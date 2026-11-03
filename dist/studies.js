@@ -3,7 +3,7 @@ const groups = [
 {title:'Chat with Docs',sub:'Document Q&A that preserves sources, respects access boundaries, and exposes where answers fail.',flow:['Documents','Ingest & index','Scoped retrieval','Grounded answer'],problem:'Answer questions over changing documents while preserving provenance and enforcing the permissions of the person asking.',architecture:'Parse documents into structured blocks; retain source IDs, page locations, versions, and access labels. Create chunk embeddings and a lexical index. Apply access filters before retrieval, rerank candidates, and generate answers with citations. A change queue reindexes updated documents and invalidates deleted content and stale caches.',decisions:'<strong>Hybrid vs. vector-only retrieval:</strong> combine lexical precision with semantic recall, accepting added indexing and tuning cost. <strong>Chunk size:</strong> compare structural chunks with fixed windows for context coverage and retrieval precision. <strong>Freshness vs. latency:</strong> incremental updates reduce stale answers but require version consistency. Abstain when retrieved evidence does not support an answer; never rely on the model to enforce access.',evaluation:'Build a question set with source spans, unanswerable questions, document updates, and cross-permission probes. Attribute failures to parsing, retrieval, reranking, or generation. Compare retrieval recall, citation support, answer quality, latency, and cost; gate releases on permission isolation and groundedness.'},
 {title:'Source-grounded research assistant',sub:'From a source collection to precise citations and an audio overview.',flow:['Source collection','Evidence store','Q&A / outline','Citations / audio'],problem:'Help a reader explore a bounded source collection and synthesize it without blurring source evidence and generated interpretation.',architecture:'Ingest and version sources into a shared evidence store with stable passage IDs. The Q&A path retrieves and reranks passages, composes an answer, and checks claim-to-citation alignment. The audio path builds a source-linked outline, writes a script, checks its claims, then queues speech synthesis. Both paths inherit source access controls.',decisions:'<strong>Retrieval vs. full-context reading:</strong> retrieval controls context cost but can miss connections; full context can help small collections at higher token cost. <strong>Audio speed vs. traceability:</strong> retain script-to-source links and validate the script before synthesis. Separate interactive Q&A from asynchronous audio jobs; cache only against source version and access scope. Bound collection size, job concurrency, and per-job token and audio budgets.',evaluation:'Assess answer support, citation precision and coverage, conflicting-source handling, and abstention. Review audio scripts for factual fidelity, topic coverage, and unsupported synthesis before evaluating listening quality. Load-test collection growth and concurrent jobs; compare end-to-end latency, token usage, audio cost, and cache effectiveness.'}
 ]},
-{id:'agents',title:'Agents that act',items:[
+{id:'agents',title:'Evidence verification',items:[
 {title:'Customer support agent',sub:'Resolve support requests while keeping business actions under control.',flow:['Intent & policy','Validate permissions','Required approval','Execute / handoff'],problem:'Support users with accurate answers and appropriate business actions while preserving policy boundaries and a reliable path to a human.',architecture:'Map support goals to intents, allowed tools, and escalation rules. Store conversation state separately from model context. Retrieve policy evidence, validate tool arguments, and route sensitive or irreversible actions through policy checks and human confirmation. Use idempotency keys for mutations and hand off the transcript, evidence, attempted actions, and unresolved issue.',decisions:'<strong>Workflow vs. open-ended agent:</strong> use deterministic steps for policy-bound actions and bounded reasoning for ambiguous requests. <strong>Prompt/RAG vs. training:</strong> establish failure categories and improve retrieval and prompts first. Curate consented, redacted conversations with verified outcomes for SFT; compare preference optimization only when preference labels are reliable. Training cannot replace runtime authorization.',evaluation:'Define an offline support set before tuning: answer correctness, policy compliance, tool selection, argument validity, successful resolution, and handoff quality. Simulate tool failures and prompt injection. Compare prompt, RAG, SFT, and preference variants on held-out cases with human review; track action violations separately from answer quality.'},
 {title:'Trip planning agent',sub:'Converge on a workable itinerary despite changing quotes and long-running tasks.',flow:['Goals & constraints','Specialist proposals','Shared plan state','Review & confirm'],problem:'Coordinate travel research into a consistent itinerary under budget, timing, and preference constraints without treating a price quote as a booking.',architecture:'A coordinator delegates bounded research to transport, lodging, and activity specialists. A versioned plan store records constraints, proposals, dependencies, quote timestamps, and conflicts. The coordinator reconciles proposals against a shared objective and stops when constraints are met or the iteration budget is exhausted. Persist checkpoints and tool results for recovery; refresh quotes before user confirmation.',decisions:'<strong>Multi-agent vs. single planner:</strong> parallel specialists can reduce research time but add coordination cost and conflicting assumptions. Limit iterations and use a single authoritative plan. <strong>Memory vs. current intent:</strong> retain user-approved preferences separately from task state. Retry transient reads with backoff; require explicit confirmation for bookings and use idempotency to avoid duplicate actions.',evaluation:'Use scenario suites with conflicting preferences, unavailable inventory, changing prices, tool timeouts, and resumed sessions. Score itinerary feasibility, constraint satisfaction, quote freshness, plan convergence, and recovery correctness. Compare total task success, latency, tool calls, and cost with a single-agent baseline; inspect confirmation compliance independently.'},
 {title:'Fact-checking agent',sub:'Trace claims to evidence — and stop when evidence or budget runs out.',flow:['Decompose claims','Retrieve evidence','Judge support','Cite / abstain'],problem:'Verify time-sensitive claims with attributable evidence while distinguishing contradiction, insufficient evidence, and genuine agreement.',architecture:'Normalize the claim, scope time and entities, and plan bounded searches. Retrieve current primary sources where possible, preserve publication and event dates, and cluster duplicate reporting. Judge evidence relevance and entailment per claim, then produce a cited verdict with uncertainty. A runtime controller manages tool retries, search depth, and explicit evidence and budget stop conditions.',decisions:'<strong>Coverage vs. budget:</strong> additional searches may find missing evidence but increase latency and cost; stop at a defined evidence threshold or return insufficient evidence. <strong>Source count vs. independence:</strong> copied reports do not constitute separate corroboration. Prefer verifiable source passages over fluent consensus, and route unresolved source conflicts for review.',evaluation:'Evaluate retrieval relevance, evidence entailment, citation correctness, verdict calibration, and complete task outcomes separately. Include stale evidence, manipulated sources, conflicting reports, and budget exhaustion. Curate reviewed errors and hard negatives into a versioned post-training dataset; hold out topics and time periods to check generalization and avoid training/test leakage.'}
@@ -29,23 +29,141 @@ const studySignals = {
 'AI coding assistant': {principle:'Separate fast completion from permissioned, verified agent execution.', impact:'A dedicated completion path protects editing flow, while scoped tools and reviewable diffs preserve developer control. Context and execution traces help explain failed edits. Task correctness, latency, and permission compliance must be assessed together.'}
 };
 
-const quickSummaries = {
-'Chat with Docs':'Permission-aware document Q&A.',
-'Source-grounded research assistant':'Cited research and source-linked audio.',
-'Customer support agent':'Support answers with controlled actions.',
-'Trip planning agent':'A recoverable plan, not just suggestions.',
-'Fact-checking agent':'Evidence-led verification within a budget.',
-'Multimodal assistant':'Visual understanding with bounded serving cost.',
-'Text-to-video generation':'Long-running generation with capacity limits.',
-'Reasoning models':'Verified quality per unit of compute.',
-'AI coding assistant':'Fast suggestions, reviewable agent changes.'
-};
 const localeData = window.studyLocaleData;
 const t = key => localeData?.labels?.[key] || key;
+const caseContexts = {
+  "study-docs": {
+    "source": "gtsp-delivery",
+    "sourceLabel": "GTSP document Q&A",
+    "bridge": "GTSP document Q&A → permission-aware retrieval.",
+    "connection": "Document Q&A at GTSP connects this design to a concrete constraint: an answer must respect the same access rules as its source. The extension adds versioned retrieval and source-level evals.",
+    "can": "Retrieve authorized documents and answer with supporting passages.",
+    "stop": "Do not expose restricted documents or treat missing evidence as a fact.",
+    "human": "A knowledge owner resolves conflicting rules and approves source updates."
+  },
+  "study-research": {
+    "source": "gtsp-delivery",
+    "sourceLabel": "GTSP document Q&A",
+    "bridge": "From GTSP document Q&A to research across sources.",
+    "connection": "GTSP document Q&A provides the starting point. This proposal extends a single answer into a research workspace with source comparison and audio summaries. Evidence stays attached when the output format changes.",
+    "can": "Compare approved sources, draft cited answers, and prepare audio scripts.",
+    "stop": "Do not invent citations or turn conflicting evidence into a settled conclusion.",
+    "human": "The reader resolves evidence conflicts and approves a script before external publication."
+  },
+  "study-support": {
+    "source": "gtsp-delivery",
+    "sourceLabel": "GTSP support integration",
+    "bridge": "GTSP support integration → controlled business actions.",
+    "connection": "Refund and order-change integration separates understanding a request from authorizing an operation. This design develops the permission checks, action gate, and recovery path around that boundary.",
+    "can": "Classify requests, retrieve policy, and propose validated tool calls.",
+    "stop": "Do not bypass permissions or retry an uncertain mutation blindly.",
+    "human": "A named approver authorizes irreversible actions; unresolved failures go to a human with context."
+  },
+  "study-trip": {
+    "source": "trip-delivery",
+    "sourceLabel": "Remex trip planning",
+    "bridge": "Remex trip planning → coordinated, recoverable plans.",
+    "connection": "The delivered trip planner turns preferences into itinerary constraints. The next design question is whether parallel research improves the plan without introducing conflicting assumptions or duplicate bookings.",
+    "can": "Research options and reconcile them against one versioned itinerary.",
+    "stop": "Do not treat estimates as live quotes or a draft plan as a booking.",
+    "human": "The traveler confirms trade-offs; booking or payment requires a named approver."
+  },
+  "study-fact": {
+    "source": "analytics-project",
+    "sourceLabel": "Twitter analytics",
+    "bridge": "From Twitter analytics to source-aware verification.",
+    "connection": "Twitter analytics established the ETL, storage, and cache foundation. This proposal carries source timestamps into claim verification, where recency and independent evidence matter more than repeated claims.",
+    "can": "Break a claim into checkable parts, retrieve sources, and assess support.",
+    "stop": "Do not count copied reports as independent evidence; stop at the search budget.",
+    "human": "A reviewer resolves source conflicts and approves conclusions used for consequential decisions."
+  },
+  "study-multimodal": {
+    "source": "commerce-project",
+    "sourceLabel": "SpringCloud commerce",
+    "bridge": "From commerce search to image-and-text assistance.",
+    "connection": "The SpringCloud platform already includes product search, CDC, and a permission boundary. This proposal extends search to images while keeping catalog freshness and access control explicit.",
+    "can": "Interpret images and text, retrieve permitted catalog items, and explain matches.",
+    "stop": "Do not infer live inventory or authorize an order from an image match.",
+    "human": "The user confirms the product and purchase; ambiguous visual matches need review."
+  },
+  "study-video": {
+    "source": "remex",
+    "sourceLabel": "Remex video Agent",
+    "bridge": "Remex video Agent → durable generation jobs.",
+    "connection": "The video Agent is in development. This architecture draws on Cloud Crafters deployment and monitoring experience to make job state, capacity, and recovery visible before expanding generation scope.",
+    "can": "Queue generation within an approved budget and expose progress and failures.",
+    "stop": "Do not exceed the compute budget or treat a failed job as delivered.",
+    "human": "A named person approves irreversible actions; the customer reviews the output before release."
+  },
+  "study-reasoning": {
+    "source": "trip-delivery",
+    "sourceLabel": "Remex trip constraints",
+    "bridge": "From trip constraints to verified reasoning budgets.",
+    "connection": "Trip planning makes correctness concrete: an itinerary either respects its constraints or needs revision. This proposal uses verifiable tasks to test when additional reasoning is worth the latency and compute.",
+    "can": "Allocate bounded reasoning effort and validate candidate answers.",
+    "stop": "Do not use response length or model confidence as evidence of correctness.",
+    "human": "A reviewer checks validator gaps and approves consequential decisions."
+  },
+  "study-coding": {
+    "source": "cloud-crafters",
+    "sourceLabel": "Cloud Crafters delivery",
+    "bridge": "From engineering delivery to reviewable Agent changes.",
+    "connection": "Cloud Crafters combined application development, IAM, and CI/CD. This proposal brings those delivery boundaries into coding assistance: scoped repository access, isolated checks, and an inspectable diff.",
+    "can": "Read permitted code, propose edits, and run allowed checks in isolation.",
+    "stop": "Do not read secrets, expand command permissions, or deploy autonomously.",
+    "human": "The developer reviews the diff and approves merges, deployment, and permission changes."
+  }
+};
+const contexts = localeData?.contexts || caseContexts;
 const target=document.getElementById('studies');
 const supportPaths = () => `<div class="support-paths" aria-label="${t('Proposed support paths')}"><h5>${t('Proposed support paths')}</h5>${[
   ['Read-only questions', 'Check document access', 'Retrieve evidence', 'Answer with sources or hand off'],
   ['Refunds and order changes', 'Validate permissions and parameters', 'Obtain required human approval', 'Execute once, record, or hand off on failure']
 ].map(([heading, ...steps]) => `<section><h6>${t(heading)}</h6><ol>${steps.map(step => `<li>${t(step)}</li>`).join('')}</ol></section>`).join('')}<p>${t('Shared state: request, evidence, approval, execution result, and handoff context.')}</p><p class="scope-caption">${t('Proposed workflow architecture for document questions and business actions.')}</p></div>`;
-(localeData?.groups || groups).forEach((g,gi)=>{const section=document.createElement('section');section.className='study-group';section.id=g.id;section.innerHTML=`<div class="group-title"><h3>${g.title}</h3></div>`;g.items.forEach((s,si)=>{const d=document.createElement('details');d.id=['study-docs','study-research','study-support','study-trip','study-fact','study-multimodal','study-video','study-reasoning','study-coding'][[0,2,5,7][gi]+si];d.innerHTML=`<summary><div class="study-title"><h4>${s.title}</h4><p class="scope-preview">${t(['study-docs','study-support','study-trip','study-video'].includes(d.id) ? 'Architecture analysis' : 'Future project proposal')}</p><p class="decision-principle"><span>${t('Decision principle')}${localeData ? '：' : ': '}</span>${s.principle || studySignals[s.title].principle}</p><p class="quick-summary">${s.quick || quickSummaries[s.title]}</p></div><span class="disclosure-arrow" aria-hidden="true"></span></summary><div class="study-body"><p class="study-note">${t('Future project proposal')}</p><p class="impact-note">${t('Product implications below are design intent, not measured outcomes.')}</p><div class="flow" aria-label="${t('Proposed architecture flow')}">${s.flow.map((f,i)=>`${i?'<b aria-hidden="true"></b>':''}<span>${f}</span>`).join('')}</div>${[['Study scope',s.sub],['Problem',s.problem],['Architecture',s.architecture],['Decisions & trade-offs',s.decisions],['Product implications',s.impact || studySignals[s.title].impact],['Evaluation plan',s.evaluation]].map(([h,p])=>`<article><h5>${t(h)}</h5><p>${p}</p></article>`).join('')}</div>`;if (d.id === 'study-support') d.querySelector('.flow').outerHTML = supportPaths();const destination = ['study-docs','study-support'].includes(d.id) ? document.getElementById('gtsp-studies') : ['study-trip','study-video'].includes(d.id) ? document.getElementById('remex-studies') : section; if(destination !== section){d.classList.add('allocated-study');const note=d.querySelector('.study-note');note.textContent=t(d.id==='study-video'?'In development / architecture notes':'Completed work / architecture notes');d.querySelector('.impact-note').textContent=t('Proposed architecture extensions and evaluation plans.');}if(destination === section){const thesis=document.createElement('p');thesis.className='proposal-thesis';thesis.innerHTML=`<strong>${t('Design priority')}</strong>${s.principle || studySignals[s.title].principle}`;d.querySelector('.study-body').prepend(thesis);}destination.appendChild(d)});target.appendChild(section)});
+const boundaryMarkup = context => `<dl class="decision-boundaries" aria-label="${t('Design boundaries')}">${[
+  ['Agent scope', context.can], ['Stop condition', context.stop], ['Human decision', context.human]
+].map(([label, text]) => `<div><dt>${t(label)}</dt><dd>${text}</dd></div>`).join('')}</dl>`;
+const allocated = ['study-docs', 'study-support', 'study-trip', 'study-video'];
+const studyIds = ['study-docs', 'study-research', 'study-support', 'study-trip', 'study-fact', 'study-multimodal', 'study-video', 'study-reasoning', 'study-coding'];
+(localeData?.groups || groups).forEach((group, groupIndex) => {
+  const section = document.createElement('section');
+  section.className = 'study-group'; section.id = group.id;
+  section.innerHTML = `<div class="group-title"><h3>${group.title}</h3></div>`;
+  group.items.forEach((study, studyIndex) => {
+    const details = document.createElement('details');
+    details.id = studyIds[[0, 2, 5, 7][groupIndex] + studyIndex];
+    const context = contexts[details.id];
+    const isAllocated = allocated.includes(details.id);
+    const principle = study.principle || studySignals[study.title].principle;
+    details.innerHTML = `<summary><div class="study-title"><h4>${study.title}</h4><p class="scope-preview">${t(isAllocated ? 'Architecture analysis' : 'Future project proposal')}</p><p class="quick-summary">${context.bridge}</p></div><span class="disclosure-arrow" aria-hidden="true"></span></summary>
+      <div class="study-body">
+        <div class="study-connection"><a class="source-link" href="#${context.source}"><span>${t('Experience behind this design')}</span>${context.sourceLabel}<span class="jump-arrow" aria-hidden="true"></span></a><p>${context.connection}</p></div>
+        <p class="proposal-thesis"><strong>${t('Design priority')}</strong>${principle}</p>
+        ${boundaryMarkup(context)}
+        <p class="study-note">${t(isAllocated ? (details.id === 'study-video' ? 'In development / architecture notes' : 'Completed work / architecture notes') : 'Future project proposal')}</p>
+        ${isAllocated ? `<p class="impact-note">${t('Proposed architecture extensions and evaluation plans.')}</p>` : ''}
+        <div class="flow" aria-label="${t('Proposed architecture flow')}">${study.flow.map((step, index) => `${index ? '<b aria-hidden="true"></b>' : ''}<span>${step}</span>`).join('')}</div>
+        ${[['Problem', study.problem], ['Architecture', study.architecture], ['Decisions & trade-offs', study.decisions], ['Product implications', study.impact || studySignals[study.title].impact], ['Evaluation plan', study.evaluation]].map(([label, text]) => `<article><h5>${t(label)}</h5><p>${text}</p></article>`).join('')}
+      </div>`;
+    if (details.id === 'study-support') details.querySelector('.flow').outerHTML = supportPaths();
+    const destination = ['study-docs', 'study-support'].includes(details.id) ? document.getElementById('gtsp-studies') : ['study-trip', 'study-video'].includes(details.id) ? document.getElementById('remex-studies') : section;
+    if (isAllocated) details.classList.add('allocated-study');
+    destination.appendChild(details);
+  });
+  target.appendChild(section);
+});
+// A compact comparison makes the autonomy boundary visible without leaving the section.
+const explorer = document.getElementById('boundary-explorer');
+if (explorer) {
+  const scenarios = [['study-docs', 'Document Q&A'], ['study-support', 'Refund request'], ['study-trip', 'Travel plan']];
+  explorer.innerHTML = `<div class="scenario-switch" role="group" aria-label="${t('Choose a task')}">${scenarios.map(([id, label], index) => `<button type="button" data-case="${id}" aria-pressed="${index === 0}" aria-controls="scenario-result">${t(label)}</button>`).join('')}</div><div id="scenario-result" aria-live="polite" aria-atomic="true">${boundaryMarkup(contexts[scenarios[0][0]])}</div>`;
+  explorer.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
+    if (button.getAttribute('aria-pressed') === 'true') return;
+    explorer.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    const result = document.getElementById('scenario-result');
+    result.getAnimations().forEach(animation => animation.cancel());
+    result.innerHTML = boundaryMarkup(contexts[button.dataset.case]);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) result.animate([{opacity: .5, transform: 'translateY(4px)'}, {opacity: 1, transform: 'none'}], {duration: 180, easing: 'ease-out'});
+  }));
+}
 const foundation=document.createElement('section');foundation.id='foundations';foundation.className='foundation';foundation.innerHTML=localeData?.foundation || '<div class="eyebrow">05 / FOUNDATIONS</div><h3>Under every system: LLM inference.</h3><p>Trace a request from API authentication and admission through tokenization, prefill, decoding, and streamed tokens. Estimate concurrency from model weights, KV cache growth, GPU memory headroom, and request lengths. Compare continuous batching, cache reuse, and scheduling policies against latency and throughput objectives. Evaluate tensor and pipeline parallelism across GPUs against communication overhead, memory capacity, and operational complexity.</p><div class="foundation-topics">API → TOKENS &nbsp; / &nbsp; KV CACHE &amp; MEMORY &nbsp; / &nbsp; BATCHING &amp; SCHEDULING &nbsp; / &nbsp; MULTI-GPU TRADE-OFFS</div>';target.appendChild(foundation);

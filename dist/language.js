@@ -9,9 +9,11 @@
       const node = document.getElementById(id);
       if (node?.matches('details')) node.open = true;
     });
+    const scenario = incoming.searchParams.get('scenario');
+    [...document.querySelectorAll('.scenario-switch button')].find(button => button.dataset.case === scenario)?.click();
     const progress = Number(incoming.searchParams.get('position')) || 0;
     window.portfolioLanguagePosition = {id: incoming.hash.slice(1), progress: Math.min(1, Math.max(0, progress))};
-    incoming.searchParams.delete('panels'); incoming.searchParams.delete('position');
+    incoming.searchParams.delete('panels'); incoming.searchParams.delete('position'); incoming.searchParams.delete('scenario');
     incoming.hash = '';
     history.replaceState(null, '', incoming.href);
     if (!reduced.matches && !nativeTransition) document.querySelector('main').animate([{opacity: .92}, {opacity: 1}], {duration: 180, easing: 'ease-out'});
@@ -35,7 +37,7 @@
       // Freeze any in-page scroll before recording the reading position.
       window.scrollTo({top: window.scrollY, behavior: 'instant'});
       const line = document.querySelector('header').getBoundingClientRect().bottom + 24;
-      const candidates = [...document.querySelectorAll('#main, #about, #focus, #experience, .career-card, #projects, .project-card, #work, .study-group, .allocated-study, #thinking, #contact')];
+      const candidates = [...document.querySelectorAll('#main, #about, #focus, .boundary-explorer, #experience, .career-card, #projects, .project-card, #work, .study-group, .allocated-study, #thinking, #contact')];
       let anchor = candidates.filter(el => {
         for (let node = el.parentElement; node; node = node.parentElement) if (node.matches('details:not([open])')) return false;
         return el.getClientRects().length && el.getBoundingClientRect().top <= line + 1;
@@ -44,11 +46,17 @@
       const selectedBounds = selected?.getBoundingClientRect();
       const selectedCaseVisible = selected?.matches('.allocated-study[open]') && selectedBounds.top < line + 160 && selectedBounds.bottom > line;
       if (selectedCaseVisible || (selected && candidates.includes(selected) && selectedBounds.top >= 0 && selectedBounds.top < line + 160)) anchor = selected;
+      const explorer = document.querySelector('.boundary-explorer[open]');
+      const explorerBounds = explorer?.getBoundingClientRect();
+      const scenarioBounds = explorer?.querySelector('.scenario-switch')?.getBoundingClientRect();
+      if (explorerBounds && scenarioBounds.top < innerHeight && explorerBounds.bottom > line) anchor = explorer;
       const progress = anchor.id === 'main' ? 0 : Math.max(0, (line - anchor.getBoundingClientRect().top) / anchor.offsetHeight);
       const destination = new URL(link.href);
       destination.hash = anchor.id;
       destination.searchParams.set('panels', [...document.querySelectorAll('details[open]')].map(el => el.id).join(','));
       destination.searchParams.set('position', progress.toFixed(4));
+      const scenario = document.querySelector('.scenario-switch button[aria-pressed="true"]');
+      if (scenario) destination.searchParams.set('scenario', scenario.dataset.case);
       // Native cross-document transitions preserve the old frame until the new one is ready.
       // Without them, navigate immediately instead of fading to a washed-out loading state.
       location.assign(destination.href);

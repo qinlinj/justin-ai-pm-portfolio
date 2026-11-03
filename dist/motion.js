@@ -62,8 +62,10 @@
     const sync = open => summary.setAttribute('aria-expanded', String(open));
     sync(details.open);
     let animation;
+    let clarity;
     let intendedOpen = details.open;
     const settle = () => {
+      clarity?.cancel(); clarity = null;
       if (!animation) return;
       animation.cancel(); animation = null;
       details.open = intendedOpen;
@@ -76,6 +78,7 @@
       settle(); intendedOpen = open; sync(open);
       if (reduced.matches || !details.animate) { details.open = open; return; }
       details.open = true;
+      if (open) clarity = content.animate([{opacity: .55, filter: 'blur(2px)'}, {opacity: 1, filter: 'blur(0)'}], {duration: 220, easing: 'ease-out'});
       const end = open ? details.getBoundingClientRect().height : summary.getBoundingClientRect().height + 2;
       details.style.overflow = 'hidden';
       animation = details.animate([{height: `${start}px`}, {height: `${end}px`}], {duration: 280, easing: 'ease-out', fill: 'both'});

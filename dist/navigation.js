@@ -75,6 +75,11 @@
     // Notify language links without invoking a second browser anchor jump.
     dispatchEvent(new Event('hashchange'));
     navigate(id);
+    // The destination cue ties a cross-reference to its source without adding a page.
+    const destination = document.getElementById(id);
+    document.querySelectorAll('.destination-highlight').forEach(node => node.classList.remove('destination-highlight'));
+    destination.classList.add('destination-highlight');
+    setTimeout(() => destination.classList.remove('destination-highlight'), 1600);
     if (event.detail === 0) {
       const target = document.getElementById(id);
       target.setAttribute('tabindex', '-1');

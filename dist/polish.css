@@ -195,3 +195,74 @@ html:lang(en) h2 { letter-spacing: -.02em; }
 .proposal-sequence strong, .proposal-sequence li span { display: block; }
 .proposal-sequence strong { color: var(--text-primary); margin-bottom: 6px; }
 @media(max-width:700px) { .proposal-sequence { margin-bottom: 24px; } .proposal-sequence>summary { padding: 18px 16px; } }
+/* A quiet control layer over opaque, readable long-form content. */
+:root { --control-shadow: 0 5px 18px #23452f10, inset 0 1px 0 #fff; }
+header { background: linear-gradient(120deg, #ffffffe0, #f1f7edbf); border-bottom-color: #ffffffed; box-shadow: 0 8px 30px #25452c0b, inset 0 1px 0 #fff; }
+.hero-system { backdrop-filter: blur(18px) saturate(125%); -webkit-backdrop-filter: blur(18px) saturate(125%); box-shadow: 0 22px 64px #214d2f16, inset 0 1px 0 #fff, inset 0 -1px 0 #6e95752b; }
+.hero-system .system-node { min-height: 68px; background: linear-gradient(130deg, #ffffffd9, #ffffff82); box-shadow: var(--control-shadow); }
+.hero-system .system-node strong { font-size: 16px; }
+.about-copy, .interests, .career-card, .project-card, .study-group { background: linear-gradient(145deg, #ffffffe6, #ffffffbd); }
+.profile-details[open]>summary, .research-details[open]>summary { border-bottom: 1px solid #d5dfd6; }
+.profile-details[open] .profile-avatar, .research-details[open] .reflection-keywords>span { background: #dcebdd; border-color: #9ab79c; }
+.profile-avatar, .reflection-keywords>span, .disclosure-arrow { transition: background 180ms, border-color 180ms, transform 180ms; }
+.language-switch, .scenario-switch { background: linear-gradient(145deg, #fff9, #e3eddf80); box-shadow: var(--control-shadow); border: 1px solid #ffffffed; }
+.insight-grid strong { color: #26563d; font-weight: 600; }
+.case-boundary { margin-top: 18px; padding: 12px 0 12px 16px; border-left: 2px solid #7b9f7f; max-width: 78ch; font-size: 15px; line-height: 1.7; color: var(--text-body); }
+.case-boundary strong { display: block; color: #285b44; margin-bottom: 4px; font-weight: 600; }
+.extension-boundary { padding: 12px 0; border-top: 1px solid #d2ddcf; }
+.study-connection { border-bottom: 1px solid #d7e1d2; margin-bottom: 22px; padding-bottom: 20px; }
+.source-link { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 44px; color: #285b44; font-size: 15px; font-weight: 600; text-decoration: underline; text-decoration-color: #a6c1a6; text-underline-offset: 4px; }
+.source-link>span:first-child { flex: 0 0 100%; font-size: 12px; font-weight: 500; color: #5a655d; text-decoration: none; }
+.study-connection>p { font-size: 16px; line-height: 1.8; margin-top: 12px; color: var(--text-body); }
+.decision-boundaries { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 0 0 24px; border: 1px solid #ccdcca; border-radius: 18px; overflow: hidden; background: #f2f6ee; }
+.decision-boundaries>div { min-width: 0; padding: 18px; }
+.decision-boundaries>div+div { border-left: 1px solid #ccdcca; }
+.decision-boundaries>div:last-child { background: #e6efe3; }
+.decision-boundaries dt { font-size: 13px; font-weight: 650; color: #28553b; margin-bottom: 8px; }
+.decision-boundaries dd { margin: 0; font-size: 15px; line-height: 1.75; color: #303d34; }
+.boundary-explorer { margin-top: 24px; }
+.explorer-note { color: var(--text-body); font-size: 15px; margin: 4px 0 18px; }
+.scenario-switch { display: flex; gap: 4px; padding: 5px; border-radius: 18px; width: fit-content; margin: 0 0 20px; }
+.scenario-switch button { appearance: none; border: 1px solid transparent; border-radius: 13px; background: transparent; color: #3f4d41; min-height: 44px; padding: 10px 18px; font: 500 15px/1.4 var(--font-body); cursor: pointer; transition: background 180ms, color 180ms, box-shadow 180ms; }
+.scenario-switch button[aria-pressed='true'] { background: #285b44; color: #fff; box-shadow: 0 4px 10px #285b4426, inset 0 1px 0 #ffffff33; }
+.scenario-switch button:hover:not([aria-pressed='true']) { background: #fff9; }
+.scenario-switch button:focus-visible, .source-link:focus-visible { outline: 2px solid #285b44; outline-offset: 3px; }
+#scenario-result .decision-boundaries { margin-bottom: 0; }
+.destination-highlight { outline: 2px solid #719575; outline-offset: 6px; border-radius: 16px; }
+.flow, .project-flow, .gate-strip { align-items: center; }
+.flow>b, .project-flow>i, .gate-strip>i { align-self: center; display: block; position: relative; margin: 0; padding: 0; line-height: 0; }
+@media(min-width:701px) { #scenario-result .decision-boundaries { min-height: 170px; } }
+@media(max-width:900px) and (min-width:701px) { .decision-boundaries>div { padding: 14px; } }
+@media(max-width:700px) {
+  .hero { padding-top: 46px; padding-bottom: 42px; }
+  .hero-bottom>p { max-width: 33ch; }
+  .case-boundary { font-size: 15px; margin-top: 18px; padding-left: 12px; }
+  .insight-grid { gap: 18px; }
+  .insight-grid article { padding: 24px; }
+  .decision-boundaries { grid-template-columns: 1fr; margin-bottom: 22px; }
+  .decision-boundaries>div { padding: 16px; }
+  .decision-boundaries>div+div { border-left: 0; border-top: 1px solid #ccdcca; }
+  .decision-boundaries dt { margin-bottom: 6px; }
+  .decision-boundaries dd { font-size: 15px; }
+  .study-connection>p { font-size: 16px; }
+  .study-group { padding: 18px 14px; }
+  .study-group summary { padding: 19px 12px; gap: 10px; }
+  .boundary-explorer>.secondary-body { padding: 0 12px 16px; }
+  .scenario-switch { width: 100%; gap: 2px; padding: 4px; }
+  .scenario-switch button { flex: 1; padding: 10px 5px; font-size: 13px; }
+  #scenario-result .decision-boundaries { min-height: 330px; }
+  .source-link { font-size: 14px; }
+}
+@media(prefers-reduced-transparency:reduce) { header, .hero-system, .scenario-switch, .language-switch { background: #f5f8f1; backdrop-filter: none; -webkit-backdrop-filter: none; } }
+@media(prefers-reduced-motion:reduce) { .profile-avatar, .reflection-keywords>span, .disclosure-arrow, .scenario-switch button { transition: none; } }
+.source-link .jump-arrow { transform: rotate(180deg); }
+/* On phones, one outer gutter and one reading surface replace nested desktop cards. */
+@media(max-width:700px) {
+  .work.wrap, .insights.wrap { padding-left: 0; padding-right: 0; }
+  .study-group { padding: 0; background: transparent; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .study-group .group-title { padding: 0 4px 16px; margin-bottom: 10px; }
+  .study-group>details { background: #ffffffd9; border-color: #d9e3d4; }
+  .study-group>details>summary { padding: 20px 14px; }
+  .study-group .study-body { padding: 18px 14px; }
+  .source-link>span:first-child { text-decoration: none; }
+}
