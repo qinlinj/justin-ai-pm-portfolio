@@ -17,7 +17,7 @@
 - Cloud Crafters: Founder, Mar 2024 – Oct 2024, earlier one-person engineering consulting business, not an AI Agent venture. Do not force unrelated links to agents.
 - DeFiner: Software Development Engineer Intern, Jun 2023 – Sep 2023.
 - Independent projects: SpringCloud platform, Jun 2024 – Oct 2024; Twitter analytics, Oct 2023 – Feb 2024. Proposed improvements to past projects must not be called shipped features.
-- Education: M.S. Information Systems Management, Carnegie Mellon University, Aug 2022 – Dec 2023; B.S. Management Information Systems, Beijing Jiaotong University and Rochester Institute of Technology joint program, Aug 2018 – Jun 2022.
+- Education: M.S. Information Systems Management, Carnegie Mellon University, Aug 2022 – Dec 2023; B.S. Management Information Systems, Beijing Jiaotong University and Rochester Institute of Technology joint program, Weihai, China, Aug 2018 – Jun 2022.
 - Preserve nine architecture notes, their depth, and the How I Think framework. Five standalone studies are labeled future project proposals; allocated notes retain scope caveats.
 - Contact destinations remain about:blank until explicitly supplied for publication. Do not infer personal contact details from GitHub authentication or resume handles.
 

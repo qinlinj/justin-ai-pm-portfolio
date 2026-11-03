@@ -64,3 +64,9 @@ Each architecture note names the experience behind it, links to the relevant rec
 The inline task comparison uses three buttons with `aria-pressed`, a 44px minimum height, and a polite result announcement. A language change retains the selected scenario. Source links use a geometric return arrow and a short destination outline.
 
 On phones, future studies use one outer gutter and a single reading surface rather than nested desktop cards. Perspective uses the same outer alignment as experience and projects. Boundary grids stack with clear separators; desktop uses three equal columns.
+
+## Research topic selector
+
+Research uses six tabs in a three-column grid. Targets are at least 44px high, with a dark-green selected state and a visible keyboard focus ring. Arrow keys, Home, and End select the associated panel. One panel is visible at a time; all topics provide a question, a product implication, a validation approach, and primary reading. Topic selection survives language navigation.
+
+Adjacent case origins are plain labels. Distant case links temporarily apply a pale-green destination fill and outline; already-visible headings do not trigger unnecessary scrolling. Cross-document language navigation is immediate, without screenshot transitions or opacity fades. Inference infrastructure uses the same white disclosure pattern as the other proposal groups.

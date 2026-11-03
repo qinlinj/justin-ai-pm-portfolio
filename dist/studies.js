@@ -1,7 +1,7 @@
 const groups = [
 {id:'knowledge',title:'Knowledge assistants',items:[
 {title:'Chat with Docs',sub:'Document Q&A that preserves sources, respects access boundaries, and exposes where answers fail.',flow:['Documents','Ingest & index','Scoped retrieval','Grounded answer'],problem:'Answer questions over changing documents while preserving provenance and enforcing the permissions of the person asking.',architecture:'Parse documents into structured blocks; retain source IDs, page locations, versions, and access labels. Create chunk embeddings and a lexical index. Apply access filters before retrieval, rerank candidates, and generate answers with citations. A change queue reindexes updated documents and invalidates deleted content and stale caches.',decisions:'<strong>Hybrid vs. vector-only retrieval:</strong> combine lexical precision with semantic recall, accepting added indexing and tuning cost. <strong>Chunk size:</strong> compare structural chunks with fixed windows for context coverage and retrieval precision. <strong>Freshness vs. latency:</strong> incremental updates reduce stale answers but require version consistency. Abstain when retrieved evidence does not support an answer; never rely on the model to enforce access.',evaluation:'Build a question set with source spans, unanswerable questions, document updates, and cross-permission probes. Attribute failures to parsing, retrieval, reranking, or generation. Compare retrieval recall, citation support, answer quality, latency, and cost; gate releases on permission isolation and groundedness.'},
-{title:'Source-grounded research assistant',sub:'From a source collection to precise citations and an audio overview.',flow:['Source collection','Evidence store','Q&A / outline','Citations / audio'],problem:'Help a reader explore a bounded source collection and synthesize it without blurring source evidence and generated interpretation.',architecture:'Ingest and version sources into a shared evidence store with stable passage IDs. The Q&A path retrieves and reranks passages, composes an answer, and checks claim-to-citation alignment. The audio path builds a source-linked outline, writes a script, checks its claims, then queues speech synthesis. Both paths inherit source access controls.',decisions:'<strong>Retrieval vs. full-context reading:</strong> retrieval controls context cost but can miss connections; full context can help small collections at higher token cost. <strong>Audio speed vs. traceability:</strong> retain script-to-source links and validate the script before synthesis. Separate interactive Q&A from asynchronous audio jobs; cache only against source version and access scope. Bound collection size, job concurrency, and per-job token and audio budgets.',evaluation:'Assess answer support, citation precision and coverage, conflicting-source handling, and abstention. Review audio scripts for factual fidelity, topic coverage, and unsupported synthesis before evaluating listening quality. Load-test collection growth and concurrent jobs; compare end-to-end latency, token usage, audio cost, and cache effectiveness.'}
+{"title": "Source-grounded research assistant", "sub": "Turn a research brief into a reviewable report with evidence coverage, conflicts, and open questions.", "flow": ["Research brief", "Questions & evidence", "Gap / conflict review", "Reviewed report"], "problem": "A document answer resolves one question. A research deliverable must cover a brief, reconcile sources, and make unresolved gaps visible. Citation accuracy alone does not establish completeness.", "architecture": "Split an approved brief into subquestions and acceptance criteria. Maintain an evidence ledger linking each question and claim to source passages, versions, permissions, and disagreements. Run bounded retrieve–inspect cycles against missing coverage; persist task state and stop at the evidence or budget limit. Draft a report with supported conclusions, counter-evidence, and open questions for human review. An optional audio job uses only the approved report and retains source links.", "decisions": "<strong>Direct RAG vs. a research loop:</strong> use direct retrieval for a narrow question; add planning and revision only when a brief requires multiple dependent questions. <strong>Coverage vs. more searching:</strong> use the acceptance rubric to decide which gap warrants another query, rather than maximizing source count. <strong>Review vs. confident synthesis:</strong> preserve unresolved disagreements instead of letting the writer silently choose a side. Cache against source versions and access scope; separate report review from optional audio generation.", "evaluation": "Compare direct RAG and the research workflow on the same brief, sources, model, and budget. Use expert-authored criteria for question coverage, claim support, missed counter-evidence, conflict disclosure, reviewer corrections, latency, and cost. Include missing sources, changed documents, inaccessible material, and interrupted sessions. Validate the optional audio script against the approved report before speech synthesis."}
 ]},
 {id:'agents',title:'Evidence verification',items:[
 {title:'Customer support agent',sub:'Resolve support requests while keeping business actions under control.',flow:['Intent & policy','Validate permissions','Required approval','Execute / handoff'],problem:'Support users with accurate answers and appropriate business actions while preserving policy boundaries and a reliable path to a human.',architecture:'Map support goals to intents, allowed tools, and escalation rules. Store conversation state separately from model context. Retrieve policy evidence, validate tool arguments, and route sensitive or irreversible actions through policy checks and human confirmation. Use idempotency keys for mutations and hand off the transcript, evidence, attempted actions, and unresolved issue.',decisions:'<strong>Workflow vs. open-ended agent:</strong> use deterministic steps for policy-bound actions and bounded reasoning for ambiguous requests. <strong>Prompt/RAG vs. training:</strong> establish failure categories and improve retrieval and prompts first. Curate consented, redacted conversations with verified outcomes for SFT; compare preference optimization only when preference labels are reliable. Training cannot replace runtime authorization.',evaluation:'Define an offline support set before tuning: answer correctness, policy compliance, tool selection, argument validity, successful resolution, and handoff quality. Simulate tool failures and prompt injection. Compare prompt, RAG, SFT, and preference variants on held-out cases with human review; track action violations separately from answer quality.'},
@@ -19,7 +19,7 @@ const groups = [
 ];
 const studySignals = {
 'Chat with Docs': {principle:'Enforce access before retrieval; ground every answer in evidence.', impact:'Permission-scoped hybrid retrieval is intended to protect user trust while improving evidence coverage. Reranking and citation checks add latency and cost; stage-level traces make that cost and unsupported answers diagnosable.'},
-'Source-grounded research assistant': {principle:'One evidence store, separate interactive and asynchronous paths.', impact:'Precise citations help readers inspect answers. Keeping audio generation off the Q&A path protects responsiveness; source-versioned caching can reduce repeat compute without reusing stale evidence. Citation and script checks are the proposed trust gates.'},
+'Source-grounded research assistant': {"principle": "Treat evidence coverage and unresolved conflicts as deliverables, not just citations.", "impact": "A question-to-evidence ledger lets a reviewer see what is supported, missing, or contested. Bounded search and persistent task state make completion and cost inspectable. The baseline comparison tests whether the extra orchestration actually reduces review work."},
 'Customer support agent': {principle:'Keep business actions behind explicit policy and confirmation gates.', impact:'Action gates and idempotency aim to prevent unauthorized or duplicate changes. They add interaction steps, so resolution quality must be evaluated alongside safety; structured handoffs let a human continue without making the user repeat the issue.'},
 'Trip planning agent': {principle:'Converge on one versioned plan; refresh quotes before confirmation.', impact:'A shared plan makes conflicts and progress visible to the user. Checkpoints reduce the need to restart long tasks, while bounded agent iterations limit cost. Quote refresh and confirmation protect against acting on outdated prices, at the expense of an extra review step.'},
 'Fact-checking agent': {principle:'Stop at the evidence threshold or budget limit; abstain when needed.', impact:'Evidence-linked verdicts help users inspect why a claim is supported or unresolved. A bounded search budget controls waiting time and spend; explicit insufficient-evidence outcomes avoid turning a budget limit into false certainty. Per-stage checks make failures attributable.'},
@@ -35,7 +35,7 @@ const caseContexts = {
   "study-docs": {
     "source": "gtsp-delivery",
     "sourceLabel": "GTSP document Q&A",
-    "bridge": "GTSP document Q&A → permission-aware retrieval.",
+    "bridge": "GTSP document Q&A \u2192 permission-aware retrieval.",
     "connection": "Document Q&A at GTSP connects this design to a concrete constraint: an answer must respect the same access rules as its source. The extension adds versioned retrieval and source-level evals.",
     "can": "Retrieve authorized documents and answer with supporting passages.",
     "stop": "Do not expose restricted documents or treat missing evidence as a fact.",
@@ -44,16 +44,30 @@ const caseContexts = {
   "study-research": {
     "source": "gtsp-delivery",
     "sourceLabel": "GTSP document Q&A",
-    "bridge": "From GTSP document Q&A to research across sources.",
-    "connection": "GTSP document Q&A provides the starting point. This proposal extends a single answer into a research workspace with source comparison and audio summaries. Evidence stays attached when the output format changes.",
-    "can": "Compare approved sources, draft cited answers, and prepare audio scripts.",
-    "stop": "Do not invent citations or turn conflicting evidence into a settled conclusion.",
-    "human": "The reader resolves evidence conflicts and approves a script before external publication."
+    "bridge": "GTSP document Q&A informs a broader research workflow.",
+    "connection": "GTSP work covered company document questions and controlled business requests. The research proposal changes the unit of work: a multi-question brief, a coverage rubric, and a report that exposes gaps and conflicting evidence.",
+    "can": "Plan bounded research, track evidence coverage, and draft a source-linked report.",
+    "stop": "Stop at the search budget; do not invent support or hide unresolved conflicts.",
+    "human": "A reviewer confirms the brief, resolves consequential conflicts, and approves the report before external use.",
+    "progression": [
+      [
+        "Existing experience",
+        "Document Q&A and business-tool integration at GTSP."
+      ],
+      [
+        "Next design step",
+        "Question decomposition, an evidence ledger, gap-driven search, and a reviewable report."
+      ],
+      [
+        "Validation",
+        "Compare with direct RAG on fixed sources: coverage, support, reviewer corrections, and cost."
+      ]
+    ]
   },
   "study-support": {
     "source": "gtsp-delivery",
     "sourceLabel": "GTSP support integration",
-    "bridge": "GTSP support integration → controlled business actions.",
+    "bridge": "GTSP support integration \u2192 controlled business actions.",
     "connection": "Refund and order-change integration separates understanding a request from authorizing an operation. This design develops the permission checks, action gate, and recovery path around that boundary.",
     "can": "Classify requests, retrieve policy, and propose validated tool calls.",
     "stop": "Do not bypass permissions or retry an uncertain mutation blindly.",
@@ -62,7 +76,7 @@ const caseContexts = {
   "study-trip": {
     "source": "trip-delivery",
     "sourceLabel": "Remex trip planning",
-    "bridge": "Remex trip planning → coordinated, recoverable plans.",
+    "bridge": "Remex trip planning \u2192 coordinated, recoverable plans.",
     "connection": "The delivered trip planner turns preferences into itinerary constraints. The next design question is whether parallel research improves the plan without introducing conflicting assumptions or duplicate bookings.",
     "can": "Research options and reconcile them against one versioned itinerary.",
     "stop": "Do not treat estimates as live quotes or a draft plan as a booking.",
@@ -89,7 +103,7 @@ const caseContexts = {
   "study-video": {
     "source": "remex",
     "sourceLabel": "Remex video Agent",
-    "bridge": "Remex video Agent → durable generation jobs.",
+    "bridge": "Remex video Agent \u2192 durable generation jobs.",
     "connection": "The video Agent is in development. This architecture draws on Cloud Crafters deployment and monitoring experience to make job state, capacity, and recovery visible before expanding generation scope.",
     "can": "Queue generation within an approved budget and expose progress and failures.",
     "stop": "Do not exceed the compute budget or treat a failed job as delivered.",
@@ -137,7 +151,7 @@ const studyIds = ['study-docs', 'study-research', 'study-support', 'study-trip',
     const principle = study.principle || studySignals[study.title].principle;
     details.innerHTML = `<summary><div class="study-title"><h4>${study.title}</h4><p class="scope-preview">${t(isAllocated ? 'Architecture analysis' : 'Future project proposal')}</p><p class="quick-summary">${context.bridge}</p></div><span class="disclosure-arrow" aria-hidden="true"></span></summary>
       <div class="study-body">
-        <div class="study-connection"><a class="source-link" href="#${context.source}"><span>${t('Experience behind this design')}</span>${context.sourceLabel}<span class="jump-arrow" aria-hidden="true"></span></a><p>${context.connection}</p></div>
+        <div class="study-connection">${isAllocated ? `<div class="source-origin"><span>${t('Experience behind this design')}</span>${context.sourceLabel}</div>` : `<a class="source-link" href="#${context.source}"><span>${t('Experience behind this design')}</span>${context.sourceLabel}<span class="jump-arrow" aria-hidden="true"></span></a>`}<p>${context.connection}</p>${context.progression ? `<dl class="proposal-progression">${context.progression.map(([label, text]) => `<div><dt>${label}</dt><dd>${text}</dd></div>`).join('')}</dl>` : ''}</div>
         <p class="proposal-thesis"><strong>${t('Design priority')}</strong>${principle}</p>
         ${boundaryMarkup(context)}
         <p class="study-note">${t(isAllocated ? (details.id === 'study-video' ? 'In development / architecture notes' : 'Completed work / architecture notes') : 'Future project proposal')}</p>
@@ -166,4 +180,7 @@ if (explorer) {
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) result.animate([{opacity: .5, transform: 'translateY(4px)'}, {opacity: 1, transform: 'none'}], {duration: 180, easing: 'ease-out'});
   }));
 }
-const foundation=document.createElement('section');foundation.id='foundations';foundation.className='foundation';foundation.innerHTML=localeData?.foundation || '<div class="eyebrow">05 / FOUNDATIONS</div><h3>Under every system: LLM inference.</h3><p>Trace a request from API authentication and admission through tokenization, prefill, decoding, and streamed tokens. Estimate concurrency from model weights, KV cache growth, GPU memory headroom, and request lengths. Compare continuous batching, cache reuse, and scheduling policies against latency and throughput objectives. Evaluate tensor and pipeline parallelism across GPUs against communication overhead, memory capacity, and operational complexity.</p><div class="foundation-topics">API → TOKENS &nbsp; / &nbsp; KV CACHE &amp; MEMORY &nbsp; / &nbsp; BATCHING &amp; SCHEDULING &nbsp; / &nbsp; MULTI-GPU TRADE-OFFS</div>';target.appendChild(foundation);
+const foundation = document.createElement('section');
+foundation.id = 'foundations'; foundation.className = 'study-group foundation';
+foundation.innerHTML = localeData?.foundation || '<div class="group-title"><h3>Inference &amp; resource planning</h3></div><details id="inference-details"><summary><div class="study-title"><h4>LLM serving and capacity</h4><p class="scope-preview">Shared infrastructure across the proposals</p><p class="quick-summary">Latency, throughput, and GPU cost shape which Agent workflows are practical.</p></div><span class="disclosure-arrow" aria-hidden="true"></span></summary><div class="study-body"><p>Trace a request from API authentication and admission through tokenization, prefill, decoding, and streamed tokens. Estimate concurrency from model weights, KV cache growth, GPU memory headroom, and request lengths.</p><p>Compare continuous batching, cache reuse, and scheduling policies against latency and throughput objectives. Evaluate tensor and pipeline parallelism across GPUs against communication overhead, memory capacity, and operational complexity.</p><div class="foundation-topics">API / TOKENS · KV CACHE / MEMORY · BATCHING / SCHEDULING · MULTI-GPU TRADE-OFFS</div></div></details>';
+target.appendChild(foundation);

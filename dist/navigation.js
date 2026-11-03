@@ -11,6 +11,7 @@
   let expiry = 0;
   let frame = 0;
   let idle;
+  let highlightTimer;
   let userInteracted = false;
   const offset = () => Math.ceil(header.getBoundingClientRect().height) + 24;
   const mark = id => links.forEach(a => {
@@ -60,7 +61,9 @@
     selectedTarget = sections.includes(target) ? id : null;
     expiry = performance.now() + 1800;
     if (selectedTarget) mark(selectedTarget);
-    window.scrollTo({ top, behavior: smooth && !reduced.matches ? 'smooth' : 'instant' });
+    const bounds = target.getBoundingClientRect();
+    const alreadyVisible = smooth && bounds.top >= offset() && bounds.top < innerHeight - 100;
+    if (!alreadyVisible) window.scrollTo({ top, behavior: smooth && !reduced.matches ? 'smooth' : 'instant' });
     clearTimeout(idle);
     idle = setTimeout(() => { selectedTarget = null; queue(); }, 1900);
   };
@@ -79,7 +82,8 @@
     const destination = document.getElementById(id);
     document.querySelectorAll('.destination-highlight').forEach(node => node.classList.remove('destination-highlight'));
     destination.classList.add('destination-highlight');
-    setTimeout(() => destination.classList.remove('destination-highlight'), 1600);
+    clearTimeout(highlightTimer);
+    highlightTimer = setTimeout(() => destination.classList.remove('destination-highlight'), 2800);
     if (event.detail === 0) {
       const target = document.getElementById(id);
       target.setAttribute('tabindex', '-1');

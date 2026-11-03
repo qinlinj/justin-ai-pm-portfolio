@@ -27,11 +27,11 @@ class Translate(HTMLParser):
    if any(c.isalpha() for c in stripped) and stripped not in ['j','Justin Jia','GitHub','LinkedIn','EN',ui['languageName']]:self.missing.append(stripped)
  def handle_decl(self,d):self.out.append('<!'+d+'>')
  def handle_comment(self,d):
-  if d.strip() in ['career-start','insights-start']: self.native=True
-  if d.strip() in ['career-end','insights-end']: self.native=False
+  if d.strip() in ['career-start','insights-start','research-start']: self.native=True
+  if d.strip() in ['career-end','insights-end','research-end']: self.native=False
   self.out.append('<!--'+d+'-->')
 source=(root/'dist/index.html').read_text()
-for section in ('career', 'insights'):
+for section in ('career', 'insights', 'research'):
  source=re.sub(r'<!--'+section+r'-start-->.*?<!--'+section+r'-end-->', lambda _, section=section: '<!--'+section+'-start-->\n'+(root/('content/'+section+'.en.html')).read_text()+'\n<!--'+section+'-end-->', source, flags=re.S)
 (root/'dist/index.html').write_text(source)
 p=Translate();p.feed(source)
@@ -39,6 +39,7 @@ if p.missing:raise ValueError('Missing translations: '+repr(p.missing))
 zh=''.join(p.out)
 zh=re.sub(r'<!--career-start-->.*?<!--career-end-->', lambda _: '<!--career-start-->\n'+(root/'content/career.zh.html').read_text()+'\n<!--career-end-->', zh, flags=re.S)
 zh=re.sub(r'<!--insights-start-->.*?<!--insights-end-->', lambda _: '<!--insights-start-->\n'+(root/'content/insights.zh.html').read_text()+'\n<!--insights-end-->', zh, flags=re.S)
+zh=re.sub(r'<!--research-start-->.*?<!--research-end-->', lambda _: '<!--research-start-->\n'+(root/'content/research.zh.html').read_text()+'\n<!--research-end-->', zh, flags=re.S)
 zh=re.sub(r'<script src="studies\.js(?:\?[^\"]*)?">', '<script src="data.zh.js"></script><script src="studies.js">', zh)
 (root/'dist/zh.html').write_text(zh)
 data=json.loads((root/'locales/zh-studies.json').read_text())

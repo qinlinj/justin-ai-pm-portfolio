@@ -65,7 +65,6 @@
   "Autonomy should be earned.": "自主范围与评估依据",
   "Knowledge should compound.": "经验沉淀与知识复用",
   "M.S., Information Systems Management, Carnegie Mellon University, Pittsburgh, PA (Aug 2022 – Dec 2023)": "信息系统管理硕士，卡内基梅隆大学，美国宾夕法尼亚州匹兹堡（2022年8月 – 2023年12月）",
-  "B.S., Management Information Systems, Beijing Jiaotong University & Rochester Institute of Technology joint undergraduate program, Beijing, China (Aug 2018 – Jun 2022)": "管理信息系统学士，北京交通大学与罗切斯特理工学院联合本科项目，中国北京（2018年8月 – 2022年6月）",
   "Design exploration, not production work.": "独立研究，未部署上线。",
   "GTSP Group: commerce, authentication, platform migration, and a document-grounded support agent.": "GTSP Group：支付接入、身份认证、电商迁移与客服 Agent 集成。",
   "Remex Studio: a completed trip planning agent and a text-to-video agent in development.": "Remex Studio：已完成旅行规划 Agent，正在开发文生视频 Agent。",
@@ -127,7 +126,7 @@
   "03 / EXECUTION": "03 / 推理与执行",
   "Research & verification": "资料研究与事实核查",
   "Multimodal assistance": "多模态助手",
-  "Extend document Q&A into source-based research and claim checking.": "从文档问答延伸到资料研究与事实核查，让结论有据可查。",
+  "Extend document Q&A into source-based research and claim checking.": "复用资料检索基础，重点研究证据覆盖、来源冲突与结论核查。",
   "Build on commerce search to connect images, text, and user intent.": "结合电商搜索经验，研究图文理解与用户意图的衔接。",
   "Turn engineering workflows into bounded, testable agent tasks.": "将工程任务拆成可验证的步骤，控制执行范围与计算成本。",
   "Let’s talk about AI products.": "聊聊 AI 产品与工程实践",
@@ -143,6 +142,11 @@
   "Use reasoning as a shared capability.": "将推理能力用于各类任务",
   "Compare bounded reasoning budgets across these tasks; expand only when verified outcomes justify the extra compute.": "在上述任务中比较不同推理预算，只有结果改善足以支撑新增成本时，才扩大计算投入。",
   "Built commerce and data platforms. Delivered support and trip planning Agents, from requirements and architecture to development and acceptance.": "从电商、数据平台到客服与旅行规划 Agent，覆盖需求、架构、开发与验收。",
-  "Five directions drawn from delivered work: document Q&A, travel planning, commerce search, data pipelines, and engineering delivery.": "从文档问答、旅行规划、商品搜索、数据管道与工程交付中，延伸出五个后续方向。",
-  "Evidence verification": "事实核查"
+  "Five directions drawn from delivered work: document Q&A, travel planning, commerce search, data pipelines, and engineering delivery.": "结合文档问答、旅行规划、商品搜索、数据管道与工程交付经验，规划五个后续项目。",
+  "Evidence verification": "事实核查",
+  "B.S., Management Information Systems, Beijing Jiaotong University & Rochester Institute of Technology joint undergraduate program, Weihai, China (Aug 2018 – Jun 2022)": "管理信息系统学士，北京交通大学与罗切斯特理工学院联合本科项目，中国威海（2018年8月 – 2022年6月）",
+  "Remex Studio: custom Agent consulting and development, covering discovery, workflow design, implementation, and acceptance.": "Remex Studio：提供定制 Agent 咨询与开发，覆盖需求梳理、工作流设计、系统接入与验收交付。",
+  "Research questions grounded in custom Agent consulting, support integration, and full-stack delivery.": "围绕定制 Agent 咨询、客服接入与工程交付，持续关注六个研究方向。",
+  "Six research directions": "六个研究方向",
+  "Memory, knowledge, evals, skills, coordination, and boundaries": "记忆、知识、evals、Skills、协作与执行边界"
 }
